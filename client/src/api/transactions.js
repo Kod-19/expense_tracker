@@ -1,12 +1,14 @@
-import axiosClient from './axiosClient';
+import axiosClient from "./axiosClient";
 
-export const getTransactions = async (filters) => {
-  const { data } = await axiosClient.get('/transactions', { params: filters });
+export const fetchTransactions = async (filters) => {
+  const { data } = await axiosClient.get("/transactions", { params: filters });
   return data;
 };
 
+export const getTransactions = fetchTransactions;
+
 export const createTransaction = async (transactionData) => {
-  const { data } = await axiosClient.post('/transactions', transactionData);
+  const { data } = await axiosClient.post("/transactions", transactionData);
   return data;
 };
 
