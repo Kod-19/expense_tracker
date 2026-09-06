@@ -27,6 +27,7 @@ A full-stack expense tracking application built with React, Express, and Postgre
 ## Installation
 
 1. **Clone and install dependencies:**
+
    ```bash
    cd expense_tracker
    npm install
@@ -44,20 +45,26 @@ A full-stack expense tracking application built with React, Express, and Postgre
 ## Running the Application
 
 ### Start the Server
+
 ```bash
 node server/app.js
 ```
+
 - Server runs on `http://localhost:5000`
 - Ensure PostgreSQL is running and `DATABASE_URL` is configured
 
 ### Start the Client
+
 Open a new terminal and run:
+
 ```bash
 npm run dev
 ```
+
 - Client runs on `http://localhost:5173`
 
 ### Access the Application
+
 Open your browser and go to `http://localhost:5173`
 
 ## Project Structure
@@ -86,23 +93,26 @@ expense_tracker/
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `POST /api/auth/logout` - Logout user
 
 ### Transactions
+
 - `GET /api/transactions` - Get all transactions
 - `POST /api/transactions` - Add new transaction
 - `PUT /api/transactions/:id` - Update transaction
 - `DELETE /api/transactions/:id` - Delete transaction
 
 ### Categories
+
 - `GET /api/categories` - Get all categories
 - `POST /api/categories` - Add new category
 - `PUT /api/categories/:id` - Update category
 - `DELETE /api/categories/:id` - Delete category
 
-*All transaction and category endpoints require authentication*
+_All transaction and category endpoints require authentication_
 
 ## Available Scripts
 
