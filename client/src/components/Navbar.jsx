@@ -1,5 +1,5 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../../server/context/AuthContext';
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const { user, logoutUser } = useAuth();
@@ -8,7 +8,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logoutUser();
-    navigate('/login');
+    navigate("/login");
   };
 
   // Helper to apply active styling to navigation links
@@ -17,15 +17,14 @@ export default function Navbar() {
   const navLinkClass = (path) =>
     `px-3 py-2 rounded-md text-sm font-medium transition ${
       isActive(path)
-        ? 'bg-blue-700 text-white'
-        : 'text-gray-300 hover:bg-blue-500 hover:text-white'
+        ? "bg-blue-700 text-white"
+        : "text-gray-300 hover:bg-blue-500 hover:text-white"
     }`;
 
   return (
     <nav className="bg-blue-600 text-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          
           {/* Logo & Brand Name */}
           <div className="flex items-center space-x-8">
             <Link to="/dashboard" className="text-xl font-bold tracking-wide">
@@ -34,16 +33,19 @@ export default function Navbar() {
 
             {/* Navigation Links */}
             <div className="hidden md:flex space-x-2">
-              <Link to="/dashboard" className={navLinkClass('/dashboard')}>
+              <Link to="/dashboard" className={navLinkClass("/dashboard")}>
                 Dashboard
               </Link>
-              <Link to="/transactions" className={navLinkClass('/transactions')}>
+              <Link
+                to="/transactions"
+                className={navLinkClass("/transactions")}
+              >
                 Transactions
               </Link>
-              <Link to="/categories" className={navLinkClass('/categories')}>
+              <Link to="/categories" className={navLinkClass("/categories")}>
                 Categories
               </Link>
-              <Link to="/budgets" className={navLinkClass('/budgets')}>
+              <Link to="/budgets" className={navLinkClass("/budgets")}>
                 Budgets
               </Link>
             </div>
@@ -63,25 +65,23 @@ export default function Navbar() {
               Logout
             </button>
           </div>
-
         </div>
 
         {/* Mobile Navigation Row */}
         <div className="md:hidden border-t border-blue-500 py-2 flex justify-around">
-          <Link to="/dashboard" className={navLinkClass('/dashboard')}>
+          <Link to="/dashboard" className={navLinkClass("/dashboard")}>
             Dashboard
           </Link>
-          <Link to="/transactions" className={navLinkClass('/transactions')}>
+          <Link to="/transactions" className={navLinkClass("/transactions")}>
             Transactions
           </Link>
-          <Link to="/categories" className={navLinkClass('/categories')}>
+          <Link to="/categories" className={navLinkClass("/categories")}>
             Categories
           </Link>
-          <Link to="/budgets" className={navLinkClass('/budgets')}>
+          <Link to="/budgets" className={navLinkClass("/budgets")}>
             Budgets
           </Link>
         </div>
-
       </div>
     </nav>
   );
