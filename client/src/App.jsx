@@ -1,21 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from '../../server/context/AuthContext';
 
 // Pages
 import Login from '../src/pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Transactions from './pages/Transactions';
-import Categories from './pages/Categories';
-import Budgets from './pages/Budgets';
+import Register from '../src/pages/Register';
+import Dashboard from '../src/pages/Dashboard';
+import Transactions from '../src/pages/Transactions';
+import Categories from '../src/pages/Categories';
+import Budgets from '../src/pages/Budgets';
 
-// Navbar / Layout
-import Navbar from './components/Navbar';
+// Components
+import Navbar from '../src/components/Navbar';
 
 const queryClient = new QueryClient();
 
-// Protected Route Guard
 function ProtectedRoute({ children }) {
   const { token, loading } = useAuth();
   if (loading) return <div className="p-8 text-center">Loading session...</div>;
@@ -36,38 +35,10 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
 
           {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/transactions"
-            element={
-              <ProtectedRoute>
-                <Transactions />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/categories"
-            element={
-              <ProtectedRoute>
-                <Categories />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/budgets"
-            element={
-              <ProtectedRoute>
-                <Budgets />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+          <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
+          <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
