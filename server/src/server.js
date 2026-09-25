@@ -20,6 +20,15 @@ app.use(
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message:
+      "Expense Tracker API is running. Use /api/health to check the server.",
+    frontend: "http://localhost:5173",
+  });
+});
+
 app.get("/api/health", (req, res) => {
   res.json({
     success: true,
@@ -44,6 +53,14 @@ app.get("/api/health/database", async (req, res) => {
       message: "Database connection failed",
     });
   }
+});
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message:
+      "Route not found. Available routes: /, /api/health, /api/health/database",
+  });
 });
 
 app.listen(PORT, () => {
