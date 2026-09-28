@@ -3,6 +3,9 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import pool from "./config/database.js";
+import authRoutes from './routes/authRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
 
 dotenv.config();
 
@@ -19,6 +22,12 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
+
+app.use("/api/profile", profileRoutes);
+
+app.use("/api/categories", categoryRoutes);
 
 app.get("/", (req, res) => {
   res.json({
