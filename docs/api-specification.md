@@ -1,0 +1,119 @@
+# API Specification
+
+This project uses a REST API built with Express. The API accepts and returns JSON data.
+
+## Base URL
+
+```text
+http://localhost:5000
+```
+
+## General response format
+
+Successful requests usually return:
+
+```json
+{
+  "success": true,
+  "message": "Request completed successfully"
+}
+```
+
+Error responses usually return:
+
+```json
+{
+  "success": false,
+  "message": "A clear error message"
+}
+```
+
+## Routes
+
+### 1. Root route
+
+- Method: GET
+- URL: `/`
+- Purpose: returns a basic API status message
+
+Example response:
+
+```json
+{
+  "success": true,
+  "message": "Expense Tracker API is running. Use /api/health to check the server.",
+  "frontend": "http://localhost:5173"
+}
+```
+
+### 2. Health check
+
+- Method: GET
+- URL: `/api/health`
+- Purpose: checks whether the API is running
+
+### 3. Database health check
+
+- Method: GET
+- URL: `/api/health/database`
+- Purpose: checks whether the PostgreSQL database connection is successful
+
+### 4. Register user
+
+- Method: POST
+- URL: `/api/auth/register`
+- Body:
+
+```json
+{
+  "email": "user@example.com",
+  "password": "strongpassword123",
+  "full_name": "Jane Doe"
+}
+```
+
+- Purpose: creates a new user account and profile
+
+### 5. Login user
+
+- Method: POST
+- URL: `/api/auth/login`
+- Body:
+
+```json
+{
+  "email": "user@example.com",
+  "password": "strongpassword123"
+}
+```
+
+- Purpose: logs in the user and returns a session token
+
+### 6. Get current user profile
+
+- Method: GET
+- URL: `/api/profile/me`
+- Auth required: Yes
+- Purpose: returns the current logged-in user's profile information
+
+### 7. Create category
+
+- Method: POST
+- URL: `/api/categories`
+- Auth required: Yes
+- Body:
+
+```json
+{
+  "name": "Groceries",
+  "type": "expense"
+}
+```
+
+- Purpose: creates a new spending or income category for the logged-in user
+
+## Notes
+
+- The backend uses bearer-token authentication for protected routes.
+- `type` values for categories are currently limited to `income` or `expense`.
+- Requests without required data or valid tokens return clear error messages.
