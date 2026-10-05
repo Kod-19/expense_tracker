@@ -1,4 +1,8 @@
 import supabase, { supabaseAdmin } from "../config/supabase.js";
+import {
+  validateLoginInput,
+  validateRegistrationInput,
+} from "../utils/validation.js";
 
 const buildSessionResponse = (session) => {
   if (!session) {
@@ -17,12 +21,16 @@ const buildSessionResponse = (session) => {
 export const register = async (req, res) => {
   try {
     const { email, password, full_name: fullName } = req.body;
+    const validation = validateRegistrationInput({
+      email,
+      password,
+      full_name: fullName,
+    });
 
-    // 1. Validate required fields
-    if (!email || !password || !fullName) {
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: "Email, password, and full name are required",
+        message: validation.errors.join(", "),
       });
     }
 
@@ -55,12 +63,10 @@ export const register = async (req, res) => {
     const userId = data.user.id;
 
     // 4. Create the user's profile
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .insert({
-        id: userId,
-        full_name: fullName,
-      });
+    const { error: profileError } = await supabase.from("profiles").insert({
+      id: userId,
+      full_name: fullName,
+    });
 
     if (profileError) {
       return res.status(500).json({
@@ -93,12 +99,12 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const validation = validateLoginInput({ email, password });
 
-    // 1. Validate required fields
-    if (!email || !password) {
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required",
+        message: validation.errors.join(", "),
       });
     }
 

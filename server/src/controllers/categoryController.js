@@ -1,23 +1,16 @@
 import pool from "../config/database.js";
+import { validateCategoryInput } from "../utils/validation.js";
 
 export const createCategory = async (req, res) => {
   try {
     const { name, type } = req.body;
     const userId = req.user.id;
+    const validation = validateCategoryInput({ name, type });
 
-    // Validate required fields
-    if (!name || !type) {
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: "Category name and type are required",
-      });
-    }
-
-    // Validate category type
-    if (!["income", "expense"].includes(type)) {
-      return res.status(400).json({
-        success: false,
-        message: "Category type must be income or expense",
+        message: validation.errors.join(", "),
       });
     }
 
