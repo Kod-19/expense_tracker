@@ -89,14 +89,43 @@ Example response:
 
 - Purpose: logs in the user and returns a session token
 
-### 6. Get current user profile
+### 6. Refresh session
+
+- Method: POST
+- URL: `/api/auth/refresh`
+- Body:
+
+```json
+{
+  "refresh_token": "supabase_refresh_token"
+}
+```
+
+- Purpose: refreshes the Supabase session and returns a new access token
+
+### 7. Get current auth user
+
+- Method: GET
+- URL: `/api/auth/me`
+- Auth required: Yes
+- Purpose: returns the current authenticated Supabase user
+
+### 8. Logout user
+
+- Method: POST
+- URL: `/api/auth/logout`
+- Auth required: Yes
+- Purpose: revokes the current Supabase session
+- Note: requires `SUPABASE_SERVICE_ROLE_KEY` on the backend
+
+### 9. Get current user profile
 
 - Method: GET
 - URL: `/api/profile/me`
 - Auth required: Yes
 - Purpose: returns the current logged-in user's profile information
 
-### 7. Create category
+### 10. Create category
 
 - Method: POST
 - URL: `/api/categories`

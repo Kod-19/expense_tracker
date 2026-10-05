@@ -1,11 +1,25 @@
-import supabase from "../config/supabase.js";
+import supabase, { supabaseAdmin } from "../config/supabase.js";
+
+const buildSessionResponse = (session) => {
+  if (!session) {
+    return null;
+  }
+
+  return {
+    access_token: session.access_token,
+    refresh_token: session.refresh_token,
+    expires_at: session.expires_at,
+    expires_in: session.expires_in,
+    token_type: session.token_type,
+  };
+};
 
 export const register = async (req, res) => {
   try {
-    const { email, password, full_name } = req.body;
+    const { email, password, full_name: fullName } = req.body;
 
     // 1. Validate required fields
-    if (!email || !password || !full_name) {
+    if (!email || !password || !fullName) {
       return res.status(400).json({
         success: false,
         message: "Email, password, and full name are required",
@@ -16,12 +30,24 @@ export const register = async (req, res) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
     });
 
     if (error) {
       return res.status(400).json({
         success: false,
         message: error.message,
+      });
+    }
+
+    if (!data.user) {
+      return res.status(400).json({
+        success: false,
+        message: "Registration failed",
       });
     }
 
@@ -33,7 +59,7 @@ export const register = async (req, res) => {
       .from("profiles")
       .insert({
         id: userId,
-        full_name,
+        full_name: fullName,
       });
 
     if (profileError) {
@@ -50,8 +76,9 @@ export const register = async (req, res) => {
       user: {
         id: userId,
         email: data.user.email,
-        full_name,
+        full_name: fullName,
       },
+      session: buildSessionResponse(data.session),
     });
   } catch (error) {
     console.error("Registration error:", error);
@@ -93,13 +120,99 @@ export const login = async (req, res) => {
       success: true,
       message: "Login successful",
       user: data.user,
-      session: {
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-      },
+      session: buildSessionResponse(data.session),
     });
   } catch (error) {
     console.error("Login error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getCurrentUser = async (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+};
+
+export const refreshSession = async (req, res) => {
+  try {
+    const { refresh_token: refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Refresh token is required",
+      });
+    }
+
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token: refreshToken,
+    });
+
+    if (error) {
+      return res.status(401).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Session refreshed successfully",
+      user: data.user,
+      session: buildSessionResponse(data.session),
+    });
+  } catch (error) {
+    console.error("Refresh session error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : null;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication token is required",
+      });
+    }
+
+    if (!supabaseAdmin) {
+      return res.status(500).json({
+        success: false,
+        message: "Supabase service role key is required to revoke sessions",
+      });
+    }
+
+    const { error } = await supabaseAdmin.auth.admin.signOut(token);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
 
     res.status(500).json({
       success: false,

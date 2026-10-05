@@ -88,6 +88,7 @@ CLIENT_URL=http://localhost:5173
 DATABASE_URL=your_postgres_connection_string
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 ```
 
 ### 4. Start the apps
@@ -126,6 +127,9 @@ The backend usually runs on:
 
 - `POST /api/auth/register` — creates a new user and profile
 - `POST /api/auth/login` — signs in and returns a session token
+- `POST /api/auth/refresh` — refreshes a Supabase session
+- `GET /api/auth/me` — returns the authenticated Supabase user
+- `POST /api/auth/logout` — revokes the current Supabase session
 
 ### Profile
 
