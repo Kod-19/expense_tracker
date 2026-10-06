@@ -6,7 +6,7 @@
   --font-sans: 'Lato', sans-serif;
 
   --color-primary: #2664EB;
-  --color-teal: #15A6A1;
+  --color-teal: #14A6A1;
   --color-mint: #C2F0E0;
   --color-success: #29A86E;
   --color-warning: #F0A329;
@@ -18,17 +18,9 @@
   --color-border: #E2E8F0;
 }
 
-/* Basic reset */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 /* Global page styles */
 body {
   font-family: var(--font-sans);
   background-color: var(--color-background);
   color: var(--color-text);
-  line-height: 1.5;
 }

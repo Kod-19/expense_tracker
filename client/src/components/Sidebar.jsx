@@ -1,5 +1,6 @@
 import {
   CreditCard,
+  ArrowRightLeft,
   FolderOpen,
   LayoutDashboard,
   PieChart,
@@ -17,7 +18,7 @@ const Sidebar = () => {
     {
       name: 'Transactions',
       navLink: '/transactions',
-      icon: CreditCard,
+      icon: ArrowRightLeft,
     },
     {
       name: 'Categories',
@@ -29,21 +30,16 @@ const Sidebar = () => {
       navLink: '/budgets',
       icon: PieChart,
     },
-    {
-      name: 'Settings',
-      navLink: '/settings',
-      icon: Settings,
-    },
   ]
 
   return (
-    <div className="flex w-72 flex-col bg-mint px-6 py-8">
-      <div className="mb-16">
-        <p className="text-xl font-bold text-text">Expense Tracker</p>
-      </div>
+    <div className="flex w-78 flex-col bg-mint px-9 py-8">
+        <p className="text-xl font-bold text-text mb-10">
+          Expense Tracker
+        </p>
 
-      <nav>
-        <ul className="space-y-3">
+      <nav className="">
+        <ul className="">
           {navLinks.map((link) => {
             const Icon = link.icon
 
@@ -54,9 +50,9 @@ const Sidebar = () => {
                   end={link.navLink === '/'}
                   className={({ isActive }) =>
                     [
-                      'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition',
+                      'flex h-12 items-center gap-3 rounded-lg px-2 text-sm font-medium transition',
                       isActive
-                        ? 'bg-primary text-surface shadow-sm'
+                        ? 'bg-teal text-surface shadow-sm'
                         : 'text-muted hover:bg-mint hover:text-text',
                     ].join(' ')
                   }
@@ -69,6 +65,10 @@ const Sidebar = () => {
           })}
         </ul>
       </nav>
+
+      <div className="">
+          
+      </div>
     </div>
   )
 }
