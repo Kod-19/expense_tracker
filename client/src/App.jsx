@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import Budgets from './pages/Budgets'
 import Categories from './pages/Categories'
 import Dashboard from './pages/Dashboard'
+import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import Transactions from './pages/Transactions'
 
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/budgets" element={<Budgets />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
