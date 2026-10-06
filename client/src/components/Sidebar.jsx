@@ -46,7 +46,7 @@ const Sidebar = () => {
   ]
 
   return (
-    <div className="flex w-78 flex-col bg-mint px-9 py-8">
+    <div className="flex w-69 flex-col bg-mint px-4 py-8">
       <a href='/' className="mb-10 text-xl font-bold text-text">
         Expense Tracker
       </a>
