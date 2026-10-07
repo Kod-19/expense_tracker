@@ -1,4 +1,5 @@
 import supabase, { supabaseAdmin } from "../config/supabase.js";
+import pool from "../config/database.js";
 import {
   validateLoginInput,
   validateRegistrationInput,
@@ -62,13 +63,21 @@ export const register = async (req, res) => {
     // 3. Get the newly created user's ID
     const userId = data.user.id;
 
-    // 4. Create the user's profile
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: userId,
-      full_name: fullName,
-    });
+    // 4. Create the user's profile with the server database connection.
+    try {
+      await pool.query(
+        `
+        INSERT INTO public.profiles (id, full_name)
+        VALUES ($1, $2)
+        ON CONFLICT (id) DO UPDATE
+        SET full_name = EXCLUDED.full_name,
+            updated_at = NOW()
+        `,
+        [userId, fullName]
+      );
+    } catch (profileError) {
+      console.error("Profile creation error:", profileError);
 
-    if (profileError) {
       return res.status(500).json({
         success: false,
         message: "User created, but profile creation failed",

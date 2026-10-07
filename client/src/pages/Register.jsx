@@ -14,6 +14,12 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
+
+    if (!fullName.trim() || !email.trim() || password.length < 8) {
+      setError('Enter your full name, a valid email, and a password with at least 8 characters.')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -73,9 +79,11 @@ const Register = () => {
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
+          minLength={8}
           required
           className="mt-2 h-12 w-full rounded-lg border border-border bg-white px-3 text-text outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20"
         />
+        <p className="mt-2 text-xs font-medium text-muted">Use at least 8 characters.</p>
 
         <button
           type="submit"

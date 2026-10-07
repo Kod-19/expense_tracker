@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect } from 'react'
 import {
   BarElement,
   CategoryScale,
@@ -16,8 +16,15 @@ import { useAuth } from '../context/AuthContext'
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Tooltip, Legend)
 
 const Dashboard = () => {
-  const { user } = useAuth()
-  const fullName = user?.full_name || user?.user_metadata?.full_name || user?.email || 'User'
+  const { fetchProfile, profile, user } = useAuth()
+
+  useEffect(() => {
+    if (!profile) {
+      fetchProfile().catch(() => {})
+    }
+  }, [fetchProfile, profile])
+
+  const fullName = profile?.full_name || user?.full_name || user?.user_metadata?.full_name || user?.email || 'User'
   const userInitial = fullName.trim().charAt(0).toUpperCase()
 
   const summary = [
