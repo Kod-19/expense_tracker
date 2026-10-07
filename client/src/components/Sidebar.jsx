@@ -2,13 +2,17 @@ import {
   ArrowRightLeft,
   FolderOpen,
   LayoutDashboard,
+  LogOut,
   PieChart,
   Settings,
-  UserRound,
 } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const Sidebar = () => {
+  const { logout } = useAuth()
+  const navigate = useNavigate()
+
   const navLinks = [
     {
       name: 'Dashboard',
@@ -34,22 +38,22 @@ const Sidebar = () => {
 
   const bottomLinks = [
     {
-      name: 'Profile',
-      navLink: '/profile',
-      icon: UserRound,
-    },
-    {
       name: 'Settings',
       navLink: '/settings',
       icon: Settings,
     },
   ]
 
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <div className="flex h-screen w-69 shrink-0 flex-col bg-mint px-4 py-8">
-      <a href='/' className="mb-10 text-xl font-bold text-text">
+      <NavLink to="/" className="mb-10 text-xl font-bold text-text">
         Expense Tracker
-      </a>
+      </NavLink>
 
       <nav className="flex-1">
         <ul>
@@ -103,6 +107,16 @@ const Sidebar = () => {
               </li>
             )
           })}
+          <li>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex h-12 w-full items-center gap-3 rounded-xl bg-surface/70 px-3 text-left text-sm font-semibold text-text transition hover:bg-surface hover:text-error"
+            >
+              <LogOut size={19} />
+              Logout
+            </button>
+          </li>
         </ul>
       </div>
     </div>

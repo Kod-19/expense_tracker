@@ -11,10 +11,15 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Tooltip, Legend)
 
 const Dashboard = () => {
+  const { user } = useAuth()
+  const fullName = user?.full_name || user?.user_metadata?.full_name || user?.email || 'User'
+  const userInitial = fullName.trim().charAt(0).toUpperCase()
+
   const summary = [
     { label: 'Balance', value: 2134.56, tone: 'text-emerald-600', percentageChange: '+12.5%' },
     { label: 'Income', value: 4200.0, tone: 'text-sky-600', percentageChange: '+8.2%' },
@@ -106,9 +111,19 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="">
-        <p className="text-3xl font-bold">Welcome, Kwame.</p>
-        <p className="text-lg pt-3 text-muted font-medium pb-10">Here is your financial overview.</p>
+      <div className="mb-10 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-3xl font-bold">Welcome, {fullName.split(' ')[0]}.</p>
+          <p className="pt-3 text-lg font-medium text-muted">Here is your financial overview.</p>
+        </div>
+
+        <Link
+          to="/profile"
+          aria-label="Open profile"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-teal text-sm font-bold text-white shadow-sm transition hover:bg-teal/90"
+        >
+          {userInitial}
+        </Link>
       </div>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
@@ -119,7 +134,7 @@ const Dashboard = () => {
             >
               <p className="text-sm font-medium text-slate-500">{item.label}</p>
               <p className={`mt-3 text-3xl font-bold ${item.tone}`}>
-                ${item.value.toLocaleString(undefined, {
+                GHS {item.value.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -154,7 +169,7 @@ const Dashboard = () => {
               <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                 <p className="text-sm font-medium text-slate-500">Tracked spending</p>
                 <p className="mt-2 text-2xl font-bold text-slate-800">
-                  ${totalTrackedSpending.toLocaleString(undefined, {
+                  GHS {totalTrackedSpending.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
@@ -165,7 +180,7 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-slate-500">Top spend</p>
                 <p className="mt-2 text-lg font-bold text-slate-800">{highestExpense.name}</p>
                 <p className="mt-1 text-sm font-semibold text-rose-600">
-                  ${highestExpense.amount.toLocaleString(undefined, {
+                  GHS {highestExpense.amount.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}{' '}
@@ -200,7 +215,7 @@ const Dashboard = () => {
                     transaction.type === 'income' ? 'text-emerald-600' : 'text-rose-600'
                   }`}
                 >
-                  {transaction.type === 'income' ? '+' : '-'}${Math.abs(transaction.amount).toLocaleString(
+                  GHS {transaction.type === 'income' ? '+' : '-'}{Math.abs(transaction.amount).toLocaleString(
                     undefined,
                     {
                       minimumFractionDigits: 2,
