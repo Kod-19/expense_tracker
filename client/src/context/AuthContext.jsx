@@ -238,11 +238,11 @@ export const AuthProvider = ({ children }) => {
       full_name: fullName.trim(),
     })
 
-  const logout = async () => {
-    const accessToken = auth.session?.access_token
+  const logout = useCallback(async () => {
+    const accessToken = authRef.current.session?.access_token
 
     if (accessToken) {
-      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      await authorizedFetch('/api/auth/logout', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -251,7 +251,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     clearAuth()
-  }
+  }, [authorizedFetch, clearAuth])
 
   const value = useMemo(
     () => ({

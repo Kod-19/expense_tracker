@@ -375,7 +375,7 @@ const Transactions = () => {
               ))}
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted">
                 <CalendarDays size={17} />
                 Date range

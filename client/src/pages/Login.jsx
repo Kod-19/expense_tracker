@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
@@ -7,6 +8,7 @@ const Login = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -29,6 +31,7 @@ const Login = () => {
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-6 sm:py-8">
       <form
         onSubmit={handleSubmit}
+        autoComplete="on"
         className="w-full max-w-md rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8"
       >
         <h1 className="text-2xl font-bold text-text sm:text-3xl">Welcome back</h1>
@@ -45,9 +48,11 @@ const Login = () => {
         </label>
         <input
           id="email"
+          name="username"
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
+          autoComplete="username"
           required
           className="mt-2 h-12 w-full rounded-lg border border-border bg-white px-3 text-text outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20"
         />
@@ -55,14 +60,27 @@ const Login = () => {
         <label className="mt-4 block text-sm font-semibold text-text" htmlFor="password">
           Password
         </label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-          className="mt-2 h-12 w-full rounded-lg border border-border bg-white px-3 text-text outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20"
-        />
+        <div className="relative mt-2">
+          <input
+            id="password"
+            name="password"
+            type={isPasswordVisible ? 'text' : 'password'}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
+            required
+            className="h-12 w-full rounded-lg border border-border bg-white px-3 pr-12 text-text outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20"
+          />
+          <button
+            type="button"
+            onClick={() => setIsPasswordVisible((visible) => !visible)}
+            aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+            aria-pressed={isPasswordVisible}
+            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-lg text-muted transition hover:text-text focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            {isPasswordVisible ? <EyeOff size={19} /> : <Eye size={19} />}
+          </button>
+        </div>
 
         <button
           type="submit"

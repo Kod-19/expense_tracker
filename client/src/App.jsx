@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Menu } from 'lucide-react'
-import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import MobileNavigation from './components/MobileNavigation'
 import Sidebar from './components/Sidebar'
 import { useAuth } from './context/AuthContext'
@@ -13,13 +13,53 @@ import Register from './pages/Register'
 import Settings from './pages/Settings'
 import Transactions from './pages/Transactions'
 
+const IDLE_TIMEOUT_MS = 15 * 60 * 1000
+
 const AppLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { isAuthenticated, logout, profile, user } = useAuth()
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.full_name || user?.email || 'User'
+  const initials = displayName.includes('@')
+    ? displayName[0].toUpperCase()
+    : displayName.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
 
   useEffect(() => {
     setIsMenuOpen(false)
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return undefined
+    }
+
+    let timeoutId
+    let lastActivityAt = 0
+    const resetTimeout = () => {
+      window.clearTimeout(timeoutId)
+      timeoutId = window.setTimeout(() => {
+        void logout()
+        navigate('/login', { replace: true })
+      }, IDLE_TIMEOUT_MS)
+    }
+    const handleActivity = () => {
+      const now = Date.now()
+      if (now - lastActivityAt >= 1000) {
+        lastActivityAt = now
+        resetTimeout()
+      }
+    }
+    const activityEvents = ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart']
+
+    resetTimeout()
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, handleActivity, { passive: true }))
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, handleActivity))
+    }
+  }, [isAuthenticated, logout, navigate])
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -54,6 +94,14 @@ const AppLayout = () => {
           <Menu size={22} />
         </button>
         <span className="text-base font-bold text-text">Expense Tracker</span>
+        <NavLink
+          to="/profile"
+          aria-label="Open your profile"
+          title="Profile"
+          className="ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          {initials || 'U'}
+        </NavLink>
       </header>
 
       <main className="min-w-0 px-4 py-5 pb-24 sm:px-6 sm:py-6 sm:pb-24 lg:flex-1 lg:overflow-y-auto lg:p-8">

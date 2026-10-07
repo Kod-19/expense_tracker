@@ -131,6 +131,25 @@ The backend usually runs on:
 
 - http://localhost:5000
 
+## Deploying the backend to Vercel
+
+The Express application is exported from `server/src/app.js`, which Vercel detects and runs as a serverless Function. `server/src/server.js` remains the local development entry point and starts the same app with `app.listen()`.
+
+To deploy the API separately from the Vite frontend:
+
+1. Import this repository as a Vercel project and set its **Root Directory** to `server`.
+2. Leave the detected Express framework and build settings at their defaults. The server project uses `server/package.json`.
+3. Add these environment variables in the Vercel project settings:
+   - `DATABASE_URL`
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `CLIENT_URL` set to the exact deployed frontend origin, such as `https://your-frontend.vercel.app`.
+4. Deploy and check `https://your-backend.vercel.app/api/health`.
+5. Set `VITE_API_BASE_URL` in the frontend Vercel project to the backend origin, without a trailing slash, then redeploy the frontend.
+
+Use production database credentials only in the backend project's environment settings. Do not expose `DATABASE_URL` or `SUPABASE_SERVICE_ROLE_KEY` as frontend environment variables. Apply reviewed database migrations to the production database separately before using the deployed app.
+
 ## API overview
 
 ### Health checks
