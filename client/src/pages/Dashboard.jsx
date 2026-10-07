@@ -2,8 +2,8 @@ import React from 'react'
 
 const Dashboard = () => {
   const summary = [
-    { label: 'Balance', value: 2134.56, tone: 'text-emerald-600', percentageChange: '12.5%' },
-    { label: 'Income', value: 4200.0, tone: 'text-sky-600', percentageChange: '8.2%' },
+    { label: 'Balance', value: 2134.56, tone: 'text-emerald-600', percentageChange: '+12.5%' },
+    { label: 'Income', value: 4200.0, tone: 'text-sky-600', percentageChange: '+8.2%' },
     { label: 'Expenses', value: 1270.44, tone: 'text-rose-600', percentageChange: '-5.7%' },
   ]
 
@@ -33,7 +33,7 @@ const Dashboard = () => {
                   maximumFractionDigits: 2,
                 })}
               </p>
-              <p className="mt-4 text-sm font-medium text-slate-500">{item.percentageChange} since last month</p>
+              <p className="mt-4 text-sm font-medium text-slate-500"><span className={item.percentageChange.startsWith('-') ? 'text-rose-600 font-bold text-lg' : 'text-emerald-600 font-bold text-lg'}>{item.percentageChange}</span> since last month</p>
             </div>
           ))}
         </div>
