@@ -6,6 +6,8 @@ import pool from "./config/database.js";
 import authRoutes from './routes/authRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
+import budgetRoutes from './routes/budgetRoutes.js';
 
 dotenv.config();
 
@@ -28,6 +30,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 
 app.use("/api/categories", categoryRoutes);
+
+app.use("/api/transactions", transactionRoutes);
+
+app.use("/api/budgets", budgetRoutes);
 
 app.get("/", (req, res) => {
   res.json({

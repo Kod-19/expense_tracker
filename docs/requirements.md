@@ -7,9 +7,12 @@ This project is a personal expense tracking app. The main goal is to help users 
 1. Users can create an account with an email, password, and full name.
 2. Users can sign in to the app securely.
 3. The system should store the user profile information.
-4. Logged-in users can create income and expense categories.
+4. Logged-in users can list, create, edit, and delete income and expense categories.
 5. The API should return a clear success or error message for each request.
 6. The system should protect private routes so only logged-in users can access them.
+7. Logged-in users can create, view, edit, delete, search, and filter their own income and expense transactions.
+8. The dashboard shows income, expenses, net balance, spending by category, recent monthly trends, and recent transactions from saved data.
+9. Logged-in users can create and manage monthly spending limits for their expense categories and see actual spending, remaining amounts, and progress.
 
 ## Non-functional requirements
 
@@ -26,19 +29,19 @@ The current project already includes:
 - user registration
 - user login
 - user profile lookup
-- category creation
+- category listing, creation, editing, and deletion
+- transaction creation, listing, editing, and deletion
+- transaction search and type/date filtering
+- dashboard summaries, charts, and recent activity from transactions
+- monthly category budgets with spending and remaining progress
 - API health checks
 
 ## Planned future scope
 
 The app can later include:
 
-- transaction entries
 - monthly reports
-- charts and analytics
-- expense filters
-- edit and delete actions
-- dashboard summary pages
+- richer charts and analytics
 
 ## Summary
 

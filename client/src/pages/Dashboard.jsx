@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  BarElement,
+  ArcElement,
   CategoryScale,
   Chart as ChartJS,
   Legend,
@@ -9,14 +9,55 @@ import {
   PointElement,
   Tooltip,
 } from 'chart.js'
-import { Bar } from 'react-chartjs-2'
+import { Doughnut, Line } from 'react-chartjs-2'
 import { Link } from 'react-router-dom'
+import { ArrowDownLeft, ArrowUpRight, LoaderCircle } from 'lucide-react'
+import Card from '../components/Card'
+import Button from '../components/Button'
 import { useAuth } from '../context/AuthContext'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Tooltip, Legend)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
+const CHART_COLORS = ['#2663EB', '#14A6A1', '#F97316', '#8B5CF6', '#EC4899', '#EAB308', '#64748B']
+
+ChartJS.register(
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Tooltip,
+  Legend
+)
+
+const formatCurrency = (value) =>
+  `GHS ${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+const dateValue = (value) => String(value).slice(0, 10)
+
+const parseDate = (value) => {
+  const [year, month, day] = dateValue(value).split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+const formatDate = (value) =>
+  parseDate(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+
+const createRecentMonthKeys = () => {
+  const now = new Date()
+  return Array.from({ length: 6 }, (_, index) => {
+    const month = new Date(now.getFullYear(), now.getMonth() - 5 + index, 1)
+    return {
+      key: `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`,
+      label: month.toLocaleDateString(undefined, { month: 'short' }),
+    }
+  })
+}
 
 const Dashboard = () => {
-  const { fetchProfile, profile, user } = useAuth()
+  const { fetchProfile, profile, user, session } = useAuth()
+  const [transactions, setTransactions] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
     if (!profile) {
@@ -24,212 +65,297 @@ const Dashboard = () => {
     }
   }, [fetchProfile, profile])
 
+  const loadTransactions = useCallback(
+    async (signal) => {
+      if (!session?.access_token) {
+        setLoadError('Your session has expired. Please sign in again.')
+        setIsLoading(false)
+        return
+      }
+
+      setIsLoading(true)
+      setLoadError('')
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/transactions`, {
+          signal,
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        const data = await response.json().catch(() => null)
+        if (!response.ok) {
+          throw new Error(data?.message || data?.error || 'Could not load dashboard data.')
+        }
+        if (!Array.isArray(data?.transactions)) {
+          throw new Error('The API returned an invalid transactions response.')
+        }
+        setTransactions(data.transactions)
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          setLoadError(error.message || 'Could not load dashboard data.')
+        }
+      } finally {
+        if (!signal?.aborted) {
+          setIsLoading(false)
+        }
+      }
+    },
+    [session?.access_token]
+  )
+
+  useEffect(() => {
+    const controller = new AbortController()
+    loadTransactions(controller.signal)
+    return () => controller.abort()
+  }, [loadTransactions])
+
   const fullName = profile?.full_name || user?.full_name || user?.user_metadata?.full_name || user?.email || 'User'
-  const userInitial = fullName.trim().charAt(0).toUpperCase()
-
-  const summary = [
-    { label: 'Balance', value: 2134.56, tone: 'text-emerald-600', percentageChange: '+12.5%' },
-    { label: 'Income', value: 4200.0, tone: 'text-sky-600', percentageChange: '+8.2%' },
-    { label: 'Expenses', value: 1270.44, tone: 'text-rose-600', percentageChange: '-5.7%' },
-  ]
-
-  const recentTransactions = [
-    { id: 1, name: 'Salary', amount: 3200.0, date: '12 Jan', month: 'Jan', category: 'Income', type: 'income' },
-    { id: 2, name: 'Groceries', amount: 153.0, date: '28 May', month: 'May', category: 'Food', type: 'expense' },
-    { id: 3, name: 'Utilities', amount: 305.6, date: '06 Aug', month: 'Aug', category: 'Bills', type: 'expense' },
-    { id: 4, name: 'Transport pass', amount: 82.75, date: '14 Aug', month: 'Aug', category: 'Transport', type: 'expense' },
-    { id: 5, name: 'Dinner out', amount: 64.2, date: '20 Sep', month: 'Sep', category: 'Food', type: 'expense' },
-    { id: 6, name: 'Software subscription', amount: 24.99, date: '02 Oct', month: 'Oct', category: 'Subscriptions', type: 'expense' },
-  ]
-
-  const spendingMonths = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']
-  const spendingByMonth = spendingMonths.map((month) =>
-    recentTransactions
-      .filter((transaction) => transaction.type === 'expense' && transaction.month === month)
-      .reduce((total, transaction) => total + transaction.amount, 0)
+  const sortedTransactions = useMemo(
+    () => [...transactions].sort((a, b) => dateValue(b.date).localeCompare(dateValue(a.date))),
+    [transactions]
   )
-
-  const expenseTransactions = recentTransactions.filter((transaction) => transaction.type === 'expense')
-  const highestExpense = expenseTransactions.reduce(
-    (highest, transaction) => (transaction.amount > highest.amount ? transaction : highest),
-    expenseTransactions[0]
+  const totals = useMemo(
+    () =>
+      transactions.reduce(
+        (result, transaction) => {
+          const amount = Number(transaction.amount) || 0
+          if (transaction.type === 'income') {
+            result.income += amount
+          } else if (transaction.type === 'expense') {
+            result.expenses += amount
+          }
+          return result
+        },
+        { income: 0, expenses: 0 }
+      ),
+    [transactions]
   )
-  const totalTrackedSpending = expenseTransactions.reduce(
-    (total, transaction) => total + transaction.amount,
-    0
-  )
+  const balance = totals.income - totals.expenses
 
-  const spendingOverviewData = {
-    labels: spendingMonths,
+  const monthlyKeys = useMemo(createRecentMonthKeys, [])
+  const monthlyTotals = useMemo(() => {
+    const byMonth = new Map(monthlyKeys.map(({ key }) => [key, { income: 0, expenses: 0 }]))
+    transactions.forEach((transaction) => {
+      const month = dateValue(transaction.date).slice(0, 7)
+      const monthTotal = byMonth.get(month)
+      if (!monthTotal) {
+        return
+      }
+      const amount = Number(transaction.amount) || 0
+      if (transaction.type === 'income') {
+        monthTotal.income += amount
+      } else if (transaction.type === 'expense') {
+        monthTotal.expenses += amount
+      }
+    })
+    return monthlyKeys.map(({ key }) => byMonth.get(key))
+  }, [monthlyKeys, transactions])
+
+  const spendingByCategory = useMemo(() => {
+    const totalsByCategory = new Map()
+    transactions
+      .filter((transaction) => transaction.type === 'expense')
+      .forEach((transaction) => {
+        const category = transaction.category?.trim() || 'Uncategorized'
+        totalsByCategory.set(
+          category,
+          (totalsByCategory.get(category) || 0) + (Number(transaction.amount) || 0)
+        )
+      })
+    return [...totalsByCategory.entries()].sort((a, b) => b[1] - a[1])
+  }, [transactions])
+
+  const categoryChartData = {
+    labels: spendingByCategory.map(([category]) => category),
     datasets: [
       {
-        label: 'Monthly spending',
-        data: spendingByMonth,
-        backgroundColor: '#14A6A1',
-        borderRadius: 8,
-        borderSkipped: false,
-        maxBarThickness: 52,
+        data: spendingByCategory.map(([, amount]) => amount),
+        backgroundColor: spendingByCategory.map((_, index) => CHART_COLORS[index % CHART_COLORS.length]),
+        borderWidth: 0,
       },
     ],
   }
 
-  const spendingOverviewOptions = {
+  const monthlyChartData = {
+    labels: monthlyKeys.map(({ label }) => label),
+    datasets: [
+      {
+        label: 'Income',
+        data: monthlyTotals.map(({ income }) => income),
+        borderColor: '#10B981',
+        backgroundColor: '#10B981',
+        tension: 0.35,
+      },
+      {
+        label: 'Expenses',
+        data: monthlyTotals.map(({ expenses }) => expenses),
+        borderColor: '#F43F5E',
+        backgroundColor: '#F43F5E',
+        tension: 0.35,
+      },
+    ],
+  }
+
+  const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: false,
-      },
+      legend: { position: 'bottom' },
       tooltip: {
         callbacks: {
-          label: (context) =>
-            `$${Number(context.raw).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}`,
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: '#64748B',
-          font: {
-            family: 'Lato',
-            weight: 700,
-          },
-        },
-      },
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: '#E2E8F0',
-        },
-        ticks: {
-          color: '#64748B',
-          callback: (value) => `$${value}`,
+          label: (context) => `${context.dataset.label ? `${context.dataset.label}: ` : ''}${formatCurrency(context.raw)}`,
         },
       },
     },
   }
 
+  const summary = [
+    { label: 'Income', value: totals.income, tone: 'text-emerald-600' },
+    { label: 'Expenses', value: totals.expenses, tone: 'text-rose-600' },
+    { label: 'Balance', value: balance, tone: balance >= 0 ? 'text-primary' : 'text-error' },
+  ]
+
   return (
-    <>
-      <div className="mb-6 flex items-start justify-between gap-4 sm:mb-10">
-        <div>
-          <p className="text-2xl font-bold sm:text-3xl">Welcome, {fullName.split(' ')[0]}.</p>
-          <p className="pt-2 text-base font-medium text-muted sm:pt-3 sm:text-lg">Here is your financial overview.</p>
-        </div>
-
-        
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-text sm:text-3xl">Welcome, {fullName.split(' ')[0]}.</h1>
+        <p className="pt-2 text-base font-medium text-muted">Here is your financial overview.</p>
       </div>
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
-          {summary.map((item) => (
-            <div
-              key={item.label}
-              className="flex-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-            >
-              <p className="text-sm font-medium text-slate-500">{item.label}</p>
-              <p className={`mt-3 break-words text-2xl font-bold sm:text-3xl ${item.tone}`}>
-                GHS {item.value.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </p>
-              <p className="mt-4 text-sm font-medium text-slate-500"><span className={item.percentageChange.startsWith('-') ? 'text-rose-600 font-bold text-lg' : 'text-emerald-600 font-bold text-lg'}>{item.percentageChange}</span> since last month</p>
-            </div>
-          ))}
+
+      {loadError && (
+        <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-error/30 bg-rose-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-semibold text-error">Dashboard data could not be loaded</p>
+            <p className="mt-1 text-sm text-muted">{loadError}</p>
+          </div>
+          <Button variant="muted" onClick={() => loadTransactions()}>
+            Try again
+          </Button>
         </div>
+      )}
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-800">Spending overview</h2>
-              <p className="mt-1 text-sm font-medium text-slate-500">
-                Monthly expense habits based on tracked transactions.
-              </p>
-            </div>
-            <Link
-              to="/transactions"
-              className="text-sm font-medium text-sky-600 transition hover:text-sky-700"
-            >
-              View details
-            </Link>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
-            <div className="h-72 min-w-0">
-              <Bar data={spendingOverviewData} options={spendingOverviewOptions} />
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                <p className="text-sm font-medium text-slate-500">Tracked spending</p>
-                <p className="mt-2 text-2xl font-bold text-slate-800">
-                  GHS {totalTrackedSpending.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                <p className="text-sm font-medium text-slate-500">Top spend</p>
-                <p className="mt-2 text-lg font-bold text-slate-800">{highestExpense.name}</p>
-                <p className="mt-1 text-sm font-semibold text-rose-600">
-                  GHS {highestExpense.amount.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}{' '}
-                  · {highestExpense.category}
-                </p>
-              </div>
-            </div>
-          </div>
+      {isLoading ? (
+        <div className="flex min-h-64 flex-col items-center justify-center gap-3 text-muted" role="status">
+          <LoaderCircle size={30} className="animate-spin text-primary" />
+          <span className="text-sm font-medium">Loading your financial overview...</span>
         </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-slate-800 sm:text-xl">Recent transactions</h2>
-            <Link to="/transactions" className="text-sm font-medium text-sky-600 hover:text-sky-700">
-              View all
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            {recentTransactions.slice(0, 3).map((transaction) => (
-              <div
-                key={transaction.id}
-                className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 sm:px-4"
-              >
-                <div className="min-w-0">
-                  <p className="font-medium text-slate-800">{transaction.name}</p>
-                  <p className="text-sm text-slate-500">{transaction.date}</p>
-                </div>
-
-                <p
-                  className={`shrink-0 text-sm font-semibold sm:text-base ${
-                    transaction.type === 'income' ? 'text-emerald-600' : 'text-rose-600'
-                  }`}
-                >
-                  GHS {transaction.type === 'income' ? '+' : '-'}{Math.abs(transaction.amount).toLocaleString(
-                    undefined,
-                    {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }
-                  )}
+      ) : !loadError && (
+        <>
+          <div className="grid gap-4 md:grid-cols-3">
+            {summary.map((item) => (
+              <Card key={item.label} className="p-5">
+                <p className="text-sm font-medium text-muted">{item.label}</p>
+                <p className={`mt-3 break-words text-2xl font-bold sm:text-3xl ${item.tone}`}>
+                  {formatCurrency(item.value)}
                 </p>
-              </div>
+                <p className="mt-2 text-xs font-medium text-muted">Based on all recorded transactions</p>
+              </Card>
             ))}
           </div>
-        </div>
-      </div>
-    </>
+
+          {transactions.length === 0 ? (
+            <Card className="flex min-h-64 flex-col items-center justify-center px-6 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <ArrowUpRight size={22} />
+              </div>
+              <h2 className="mt-4 text-lg font-semibold text-text">Start tracking your money</h2>
+              <p className="mt-1 max-w-md text-sm text-muted">
+                Your income, expense summaries, and charts will appear here once you add transactions.
+              </p>
+              <Link
+                to="/transactions"
+                className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary/90"
+              >
+                Add your first transaction
+              </Link>
+            </Card>
+          ) : (
+            <>
+              <div className="grid gap-6 xl:grid-cols-2">
+                <Card title="Spending by category" subtitle="Expense totals across your recorded transactions.">
+                  {spendingByCategory.length === 0 ? (
+                    <div className="flex min-h-64 items-center justify-center text-center text-sm font-medium text-muted">
+                      No expenses recorded yet.
+                    </div>
+                  ) : (
+                    <div className="mx-auto h-72 max-w-xl">
+                      <Doughnut
+                        data={categoryChartData}
+                        options={{
+                          ...chartOptions,
+                          cutout: '62%',
+                          plugins: {
+                            ...chartOptions.plugins,
+                            tooltip: {
+                              callbacks: {
+                                label: (context) => `${context.label}: ${formatCurrency(context.raw)}`,
+                              },
+                            },
+                          },
+                        }}
+                      />
+                    </div>
+                  )}
+                </Card>
+
+                <Card title="Monthly trend" subtitle="Income and expenses for the last six months.">
+                  <div className="h-72 min-w-0">
+                    <Line
+                      data={monthlyChartData}
+                      options={{
+                        ...chartOptions,
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: { callback: (value) => formatCurrency(value) },
+                          },
+                          x: { grid: { display: false } },
+                        },
+                      }}
+                    />
+                  </div>
+                </Card>
+              </div>
+
+              <Card
+                title="Recent transactions"
+                subtitle="Your latest recorded income and expenses."
+                action={
+                  <Link to="/transactions" className="text-sm font-semibold text-primary hover:text-primary/80">
+                    View all
+                  </Link>
+                }
+              >
+                <div className="space-y-3">
+                  {sortedTransactions.slice(0, 5).map((transaction) => (
+                    <div
+                      key={transaction.id}
+                      className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border bg-slate-50 px-3 py-3 sm:px-4"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className={[
+                          'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                          transaction.type === 'income' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700',
+                        ].join(' ')}>
+                          {transaction.type === 'income' ? <ArrowUpRight size={18} /> : <ArrowDownLeft size={18} />}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-text">{transaction.name}</p>
+                          <p className="text-sm text-muted">
+                            {transaction.category} · {formatDate(transaction.date)}
+                          </p>
+                        </div>
+                      </div>
+                      <p className={`shrink-0 text-right text-sm font-bold sm:text-base ${transaction.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </>
+          )}
+        </>
+      )}
+    </div>
   )
 }
 

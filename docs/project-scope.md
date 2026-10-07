@@ -9,6 +9,7 @@ The goal of this project is to build a personal expense tracker that helps users
 - user sign up and login
 - user profile support
 - category management for income and expenses
+- transaction creation, listing, editing, deletion, search, and filtering
 - secure API routes
 - database and Supabase integration
 - frontend and backend project setup
@@ -16,7 +17,6 @@ The goal of this project is to build a personal expense tracker that helps users
 
 ## Out of scope for now
 
-- full transaction management
 - dashboard charts and analytics
 - recurring budgets
 - notifications and reminders
@@ -26,7 +26,7 @@ The goal of this project is to build a personal expense tracker that helps users
 
 ## Current maturity level
 
-This project is at the base setup and API stage. The backend has core auth and category features, while the frontend is still a starter screen.
+The project includes the authenticated transaction workflow and API alongside the auth and category foundation. Dashboard analytics and other reporting remain future work.
 
 ## Project focus
 

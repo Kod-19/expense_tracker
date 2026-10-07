@@ -1,6 +1,6 @@
 # Expense Tracker
 
-Expense Tracker is a simple full-stack web app for managing personal money activity. It helps users create an account, sign in, view their profile, and organize spending and income categories.
+Expense Tracker is a simple full-stack web app for managing personal money activity. It helps users create an account, sign in, view their profile, organize categories, and manage income and expense transactions.
 
 ## What this project does
 
@@ -10,6 +10,7 @@ This app is built to help a person:
 - log in securely
 - keep a profile with their name
 - add and manage categories such as food, rent, salary, or savings
+- create, review, search, filter, edit, and delete transactions
 - check that the backend and database are working
 
 ## Tech stack
@@ -58,9 +59,10 @@ The project is in an early stage. The backend already includes:
 - login with Supabase auth
 - profile retrieval
 - category creation
+- authenticated transaction CRUD
 - health checks for the API and database
 
-The frontend is still a basic starter and does not yet contain the full dashboard and expense flow.
+The frontend includes the protected transaction workflow for recording and managing income and expenses. Dashboard totals and chart data are still sample content.
 
 ## Local setup
 
@@ -107,6 +109,13 @@ cd server
 npm run dev
 ```
 
+Apply all transaction and budget table migrations to the configured PostgreSQL/Supabase database:
+
+```bash
+cd server
+npm run db:setup
+```
+
 Check the backend's PostgreSQL connection from the terminal:
 
 ```bash
@@ -144,7 +153,26 @@ The backend usually runs on:
 
 ### Categories
 
+- `GET /api/categories` — lists categories belonging to the logged-in user
 - `POST /api/categories` — creates a category for the logged-in user
+- `PUT /api/categories/:id` — updates a category belonging to the logged-in user
+- `DELETE /api/categories/:id` — deletes a category belonging to the logged-in user
+
+### Transactions
+
+- `GET /api/transactions` — lists transactions belonging to the logged-in user
+- `POST /api/transactions` — creates a transaction
+- `PUT /api/transactions/:id` — updates a transaction
+- `DELETE /api/transactions/:id` — deletes a transaction
+
+### Budgets
+
+- `GET /api/budgets?month=YYYY-MM` — lists monthly category limits with actual spending and remaining amounts
+- `POST /api/budgets` — creates a monthly budget
+- `PUT /api/budgets/:id` — updates a budget
+- `DELETE /api/budgets/:id` — deletes a budget
+
+Before using these endpoints, run `npm run db:setup` from `server/` to apply the SQL migrations in `server/migrations/` to the configured PostgreSQL/Supabase database. The command is safe to rerun.
 
 ## Example user flow
 
@@ -152,7 +180,8 @@ The backend usually runs on:
 2. The server creates a Supabase auth user and inserts a profile record.
 3. The user logs in and receives an access token.
 4. The user creates categories like "Food" or "Salary".
-5. The backend stores those categories under the logged-in user.
+5. The user records, filters, edits, and deletes income and expense transactions.
+6. The backend stores those records under the logged-in user.
 
 ## Security notes
 
@@ -165,12 +194,11 @@ The backend usually runs on:
 
 The app can grow to support:
 
-- income and expense transactions
 - monthly summaries and analytics
 - budget limits
 - charts and reports
 - editing and deleting records
-- better dashboard UI
+- monthly reports and richer financial analytics
 
 ## Documentation
 
