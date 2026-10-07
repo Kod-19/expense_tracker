@@ -15,8 +15,8 @@ import { ArrowDownLeft, ArrowUpRight, LoaderCircle } from 'lucide-react'
 import Card from '../components/Card'
 import Button from '../components/Button'
 import { useAuth } from '../context/AuthContext'
+import { formatDate } from '../utils/preferences'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 const CHART_COLORS = ['#2663EB', '#14A6A1', '#F97316', '#8B5CF6', '#EC4899', '#EAB308', '#64748B']
 
 ChartJS.register(
@@ -34,14 +34,6 @@ const formatCurrency = (value) =>
 
 const dateValue = (value) => String(value).slice(0, 10)
 
-const parseDate = (value) => {
-  const [year, month, day] = dateValue(value).split('-').map(Number)
-  return new Date(year, month - 1, day)
-}
-
-const formatDate = (value) =>
-  parseDate(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-
 const createRecentMonthKeys = () => {
   const now = new Date()
   return Array.from({ length: 6 }, (_, index) => {
@@ -54,7 +46,7 @@ const createRecentMonthKeys = () => {
 }
 
 const Dashboard = () => {
-  const { fetchProfile, profile, user, session } = useAuth()
+  const { authorizedFetch, fetchProfile, profile, user } = useAuth()
   const [transactions, setTransactions] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -67,19 +59,10 @@ const Dashboard = () => {
 
   const loadTransactions = useCallback(
     async (signal) => {
-      if (!session?.access_token) {
-        setLoadError('Your session has expired. Please sign in again.')
-        setIsLoading(false)
-        return
-      }
-
       setIsLoading(true)
       setLoadError('')
       try {
-        const response = await fetch(`${API_BASE_URL}/api/transactions`, {
-          signal,
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        })
+        const response = await authorizedFetch('/api/transactions', { signal })
         const data = await response.json().catch(() => null)
         if (!response.ok) {
           throw new Error(data?.message || data?.error || 'Could not load dashboard data.')
@@ -98,7 +81,7 @@ const Dashboard = () => {
         }
       }
     },
-    [session?.access_token]
+    [authorizedFetch]
   )
 
   useEffect(() => {

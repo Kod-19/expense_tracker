@@ -16,7 +16,6 @@ import Input from '../components/Input'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/ToastProvider'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 const currentMonth = () => {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -32,7 +31,7 @@ const formatMonth = (month) => {
 }
 
 const Budgets = () => {
-  const { session } = useAuth()
+  const { authorizedFetch } = useAuth()
   const notify = useToast()
   const [budgets, setBudgets] = useState([])
   const [categories, setCategories] = useState([])
@@ -49,27 +48,16 @@ const Budgets = () => {
 
   const request = useCallback(
     async (path, { method = 'GET', body, signal } = {}) => {
-      if (!session?.access_token) {
-        throw new Error('Your session has expired. Please sign in again.')
-      }
-
-      let response
-      try {
-        response = await fetch(`${API_BASE_URL}${path}`, {
-          method,
-          signal,
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            ...(body ? { 'Content-Type': 'application/json' } : {}),
-          },
-          ...(body ? { body: JSON.stringify(body) } : {}),
-        })
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          throw error
-        }
-        throw new Error(`Cannot reach API server at ${API_BASE_URL}`)
-      }
+      const response = await authorizedFetch(path, {
+        method,
+        signal,
+        ...(body
+          ? {
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body),
+            }
+          : {}),
+      })
 
       const data = await response.json().catch(() => null)
       if (!response.ok) {
@@ -77,7 +65,7 @@ const Budgets = () => {
       }
       return data
     },
-    [session?.access_token]
+    [authorizedFetch]
   )
 
   const loadBudgets = useCallback(

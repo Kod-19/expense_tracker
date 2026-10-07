@@ -15,8 +15,9 @@ import Card from '../components/Card'
 import Input from '../components/Input'
 import { useToast } from '../components/ToastProvider'
 import { useAuth } from '../context/AuthContext'
+import { formatDate, getPreferences } from '../utils/preferences'
+import { Link } from 'react-router-dom'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 const FILTERS = ['All', 'Income', 'Expense']
 const EMPTY_FORM = {
   name: '',
@@ -31,27 +32,26 @@ const EMPTY_FORM = {
 const formatCurrency = (value) =>
   `GHS ${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
-const formatDate = (value) => {
-  const [year, month, day] = String(value).slice(0, 10).split('-').map(Number)
-  return new Date(year, month - 1, day).toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
-}
+const createEmptyForm = () => ({
+  ...EMPTY_FORM,
+  type: getPreferences().defaultTransactionType,
+})
 
 const Transactions = () => {
-  const { session } = useAuth()
+  const { authorizedFetch } = useAuth()
   const notify = useToast()
   const [transactions, setTransactions] = useState([])
+  const [categories, setCategories] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true)
+  const [categoryLoadError, setCategoryLoadError] = useState('')
   const [loadError, setLoadError] = useState('')
   const [actionError, setActionError] = useState('')
   const [activeFilter, setActiveFilter] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
-  const [form, setForm] = useState(EMPTY_FORM)
+  const [form, setForm] = useState(createEmptyForm)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState(null)
   const [deletingTransaction, setDeletingTransaction] = useState(null)
@@ -60,27 +60,16 @@ const Transactions = () => {
 
   const request = useCallback(
     async (path, { method = 'GET', body, signal } = {}) => {
-      if (!session?.access_token) {
-        throw new Error('Your session has expired. Please sign in again.')
-      }
-
-      let response
-      try {
-        response = await fetch(`${API_BASE_URL}${path}`, {
-          method,
-          signal,
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            ...(body ? { 'Content-Type': 'application/json' } : {}),
-          },
-          ...(body ? { body: JSON.stringify(body) } : {}),
-        })
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          throw error
-        }
-        throw new Error(`Cannot reach API server at ${API_BASE_URL}`)
-      }
+      const response = await authorizedFetch(path, {
+        method,
+        signal,
+        ...(body
+          ? {
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body),
+            }
+          : {}),
+      })
 
       const data = await response.json().catch(() => null)
       if (!response.ok) {
@@ -89,7 +78,7 @@ const Transactions = () => {
 
       return data
     },
-    [session?.access_token]
+    [authorizedFetch]
   )
 
   const loadTransactions = useCallback(
@@ -115,11 +104,40 @@ const Transactions = () => {
     [request]
   )
 
+  const loadCategories = useCallback(
+    async (signal) => {
+      setIsLoadingCategories(true)
+      setCategoryLoadError('')
+      try {
+        const data = await request('/api/categories', { signal })
+        if (!Array.isArray(data?.categories)) {
+          throw new Error('The API returned an invalid categories response.')
+        }
+        setCategories(data.categories)
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          setCategoryLoadError(error.message || 'Could not load your categories.')
+        }
+      } finally {
+        if (!signal?.aborted) {
+          setIsLoadingCategories(false)
+        }
+      }
+    },
+    [request]
+  )
+
   useEffect(() => {
     const controller = new AbortController()
     loadTransactions(controller.signal)
+    loadCategories(controller.signal)
     return () => controller.abort()
-  }, [loadTransactions])
+  }, [loadCategories, loadTransactions])
+
+  const availableCategories = useMemo(
+    () => categories.filter((category) => category.type === form.type),
+    [categories, form.type]
+  )
 
   const filteredTransactions = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase()
@@ -160,7 +178,7 @@ const Transactions = () => {
     setActionError('')
     setEditingTransaction(null)
     setIsFormOpen(true)
-    setForm({ ...EMPTY_FORM, date: new Date().toISOString().slice(0, 10) })
+    setForm({ ...createEmptyForm(), date: new Date().toISOString().slice(0, 10) })
   }
 
   const openEditForm = (transaction) => {
@@ -182,7 +200,7 @@ const Transactions = () => {
     if (!isSaving) {
       setEditingTransaction(null)
       setIsFormOpen(false)
-      setForm(EMPTY_FORM)
+      setForm(createEmptyForm())
     }
   }, [isSaving])
 
@@ -202,7 +220,18 @@ const Transactions = () => {
 
   const handleFormChange = (event) => {
     const { name, value } = event.target
-    setForm((currentForm) => ({ ...currentForm, [name]: value }))
+    setForm((currentForm) => {
+      if (name === 'type') {
+        const nextCategories = categories.filter((category) => category.type === value)
+        const currentCategoryIsValid = nextCategories.some((category) => category.name === currentForm.category)
+        return {
+          ...currentForm,
+          type: value,
+          category: currentCategoryIsValid ? currentForm.category : nextCategories[0]?.name || '',
+        }
+      }
+      return { ...currentForm, [name]: value }
+    })
   }
 
   const handleSave = async (event) => {
@@ -231,7 +260,7 @@ const Transactions = () => {
       )
       setEditingTransaction(null)
       setIsFormOpen(false)
-      setForm(EMPTY_FORM)
+      setForm(createEmptyForm())
       notify(isEditing ? 'Transaction updated.' : 'Transaction created.')
     } catch (error) {
       setActionError(error.message || 'Could not save this transaction.')
@@ -546,16 +575,45 @@ const Transactions = () => {
                   maxLength={120}
                   required
                 />
-                <Input
-                  id="transaction-category"
-                  name="category"
-                  label="Category"
-                  value={form.category}
-                  onChange={handleFormChange}
-                  placeholder="e.g. Food"
-                  maxLength={80}
-                  required
-                />
+                <div>
+                  <label htmlFor="transaction-category" className="mb-2 block text-sm font-semibold text-text">
+                    Category
+                  </label>
+                  <select
+                    id="transaction-category"
+                    name="category"
+                    value={form.category}
+                    onChange={handleFormChange}
+                    required
+                    disabled={isLoadingCategories || availableCategories.length === 0}
+                    className="h-12 w-full rounded-lg border border-border bg-white px-3 text-text outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-slate-100"
+                  >
+                    <option value="">
+                      {isLoadingCategories ? 'Loading categories…' : 'Select a category'}
+                    </option>
+                    {availableCategories.map((category) => (
+                      <option key={category.id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  {categoryLoadError ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-medium text-error">
+                      <span>{categoryLoadError}</span>
+                      <button type="button" className="underline" onClick={() => loadCategories()}>
+                        Retry
+                      </button>
+                    </div>
+                  ) : !isLoadingCategories && availableCategories.length === 0 ? (
+                    <p className="mt-2 text-xs font-medium text-muted">
+                      No {form.type} categories yet.{' '}
+                      <Link to="/categories" className="font-bold text-primary underline">
+                        Create one first
+                      </Link>
+                      .
+                    </p>
+                  ) : null}
+                </div>
                 <div>
                   <label htmlFor="transaction-type" className="mb-2 block text-sm font-semibold text-text">
                     Type
@@ -621,7 +679,11 @@ const Transactions = () => {
                 <Button variant="muted" onClick={closeForm} disabled={isSaving}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSaving} className="gap-2">
+                <Button
+                  type="submit"
+                  disabled={isSaving || isLoadingCategories || availableCategories.length === 0}
+                  className="gap-2"
+                >
                   {isSaving && <LoaderCircle size={17} className="animate-spin" />}
                   {isSaving ? 'Saving...' : editingTransaction ? 'Save changes' : 'Create transaction'}
                 </Button>

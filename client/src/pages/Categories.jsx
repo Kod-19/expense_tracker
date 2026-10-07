@@ -6,11 +6,10 @@ import Input from '../components/Input'
 import { useToast } from '../components/ToastProvider'
 import { useAuth } from '../context/AuthContext'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 const EMPTY_FORM = { name: '', type: 'expense' }
 
 const Categories = () => {
-  const { session } = useAuth()
+  const { authorizedFetch } = useAuth()
   const notify = useToast()
   const [categories, setCategories] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -25,27 +24,16 @@ const Categories = () => {
 
   const request = useCallback(
     async (path, { method = 'GET', body, signal } = {}) => {
-      if (!session?.access_token) {
-        throw new Error('Your session has expired. Please sign in again.')
-      }
-
-      let response
-      try {
-        response = await fetch(`${API_BASE_URL}${path}`, {
-          method,
-          signal,
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            ...(body ? { 'Content-Type': 'application/json' } : {}),
-          },
-          ...(body ? { body: JSON.stringify(body) } : {}),
-        })
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          throw error
-        }
-        throw new Error(`Cannot reach API server at ${API_BASE_URL}`)
-      }
+      const response = await authorizedFetch(path, {
+        method,
+        signal,
+        ...(body
+          ? {
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body),
+            }
+          : {}),
+      })
 
       const data = await response.json().catch(() => null)
       if (!response.ok) {
@@ -53,7 +41,7 @@ const Categories = () => {
       }
       return data
     },
-    [session?.access_token]
+    [authorizedFetch]
   )
 
   const loadCategories = useCallback(
