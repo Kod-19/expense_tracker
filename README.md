@@ -107,6 +107,13 @@ cd server
 npm run dev
 ```
 
+Check the backend's PostgreSQL connection from the terminal:
+
+```bash
+cd server
+npm run db:check
+```
+
 The frontend usually runs on:
 
 - http://localhost:5173
