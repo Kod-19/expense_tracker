@@ -10,9 +10,9 @@ import Transactions from './pages/Transactions'
 
 const App = () => {
   return (
-    <div className="flex min-h-screen ">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <main className="min-w-0 flex-1 p-6">
+      <main className="min-w-0 flex-1 overflow-y-auto p-6">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
