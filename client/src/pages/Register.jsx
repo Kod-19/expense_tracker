@@ -33,12 +33,12 @@ const Register = () => {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-6 sm:py-8">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md rounded-2xl border border-border bg-surface p-8 shadow-sm"
+        className="w-full max-w-md rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8"
       >
-        <h1 className="text-3xl font-bold text-text">Create account</h1>
+        <h1 className="text-2xl font-bold text-text sm:text-3xl">Create account</h1>
         <p className="mt-2 text-sm font-medium text-muted">Start with a simple profile and secure login.</p>
 
         {error && (
@@ -88,7 +88,7 @@ const Register = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-6 h-12 w-full rounded-lg bg-teal px-4 text-sm font-bold text-white transition hover:bg-teal/90 disabled:cursor-not-allowed disabled:opacity-70"
+          className="mt-6 h-12 w-full rounded-lg bg-primary px-4 text-md font-bold text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSubmitting ? 'Creating account...' : 'Create account'}
         </button>

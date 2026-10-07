@@ -118,19 +118,13 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="mb-10 flex items-start justify-between gap-4">
+      <div className="mb-6 flex items-start justify-between gap-4 sm:mb-10">
         <div>
-          <p className="text-3xl font-bold">Welcome, {fullName.split(' ')[0]}.</p>
-          <p className="pt-3 text-lg font-medium text-muted">Here is your financial overview.</p>
+          <p className="text-2xl font-bold sm:text-3xl">Welcome, {fullName.split(' ')[0]}.</p>
+          <p className="pt-2 text-base font-medium text-muted sm:pt-3 sm:text-lg">Here is your financial overview.</p>
         </div>
 
-        <Link
-          to="/profile"
-          aria-label="Open profile"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-teal text-sm font-bold text-white shadow-sm transition hover:bg-teal/90"
-        >
-          {userInitial}
-        </Link>
+        
       </div>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
@@ -140,7 +134,7 @@ const Dashboard = () => {
               className="flex-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
             >
               <p className="text-sm font-medium text-slate-500">{item.label}</p>
-              <p className={`mt-3 text-3xl font-bold ${item.tone}`}>
+              <p className={`mt-3 break-words text-2xl font-bold sm:text-3xl ${item.tone}`}>
                 GHS {item.value.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -151,7 +145,7 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-slate-800">Spending overview</h2>
@@ -198,9 +192,9 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-800">Recent transactions</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-semibold text-slate-800 sm:text-xl">Recent transactions</h2>
             <Link to="/transactions" className="text-sm font-medium text-sky-600 hover:text-sky-700">
               View all
             </Link>
@@ -210,15 +204,15 @@ const Dashboard = () => {
             {recentTransactions.slice(0, 3).map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3"
+                className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 sm:px-4"
               >
-                <div>
+                <div className="min-w-0">
                   <p className="font-medium text-slate-800">{transaction.name}</p>
                   <p className="text-sm text-slate-500">{transaction.date}</p>
                 </div>
 
                 <p
-                  className={`font-semibold ${
+                  className={`shrink-0 text-sm font-semibold sm:text-base ${
                     transaction.type === 'income' ? 'text-emerald-600' : 'text-rose-600'
                   }`}
                 >
