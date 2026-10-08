@@ -44,7 +44,7 @@ const Login = () => {
           className="w-full rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8"
         >
         <h1 className="text-2xl font-bold text-text sm:text-3xl">Welcome back</h1>
-        <p className="mt-2 text-sm font-medium text-muted">Sign in to continue tracking your money.</p>
+        <p className="mt-2 text-sm font-medium text-muted">Sign in to manage your income and expenses.</p>
 
         {error && (
           <p className="mt-5 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm font-medium text-error">

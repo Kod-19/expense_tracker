@@ -42,7 +42,7 @@ const Profile = () => {
   }, [fetchProfile, profile])
 
   const name = profile?.full_name || user?.user_metadata?.full_name || ''
-  const email = user?.email || 'Email unavailable'
+  const email = user?.email || 'No email available'
   const initials = name
     ? name.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
     : email[0]?.toUpperCase() || 'U'
@@ -111,7 +111,7 @@ const Profile = () => {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-text">Profile</h1>
-          <p className="mt-2 text-base font-medium text-muted">Manage your account details.</p>
+          <p className="mt-2 text-base font-medium text-muted">View and update your account details.</p>
         </div>
         {!isEditing && (
           <Button onClick={openEditor} className="gap-2">
@@ -187,7 +187,7 @@ const Profile = () => {
               <span className="text-sm font-semibold">Email address</span>
             </div>
             <p className="mt-2 break-all font-bold text-text">{email}</p>
-            <p className="mt-1 text-xs text-muted">Email changes are managed by your sign-in provider.</p>
+            <p className="mt-1 text-xs text-muted">To change your email, update it with the service you use to sign in.</p>
           </div>
         </div>
       </Card>

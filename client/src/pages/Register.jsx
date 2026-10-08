@@ -51,7 +51,7 @@ const Register = () => {
           className="w-full rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8"
         >
         <h1 className="text-2xl font-bold text-text sm:text-3xl">Create account</h1>
-        <p className="mt-2 text-sm font-medium text-muted">Start with a simple profile and secure login.</p>
+        <p className="mt-2 text-sm font-medium text-muted">Create an account to keep your money organized.</p>
 
         {error && (
           <p className="mt-5 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm font-medium text-error">

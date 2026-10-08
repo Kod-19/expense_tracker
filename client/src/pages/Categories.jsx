@@ -182,7 +182,7 @@ const Categories = () => {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text sm:text-3xl">Categories</h1>
-          <p className="mt-2 text-base font-medium text-muted">Organize your income and expenses.</p>
+          <p className="mt-2 text-base font-medium text-muted">Group your income and expenses so they’re easy to track.</p>
         </div>
         <Button onClick={openCreateForm} className="h-11 gap-2 px-5">
           <Plus size={18} />
@@ -202,7 +202,7 @@ const Categories = () => {
       {loadError ? (
         <Card className="p-6">
           <div role="alert" className="text-center">
-            <p className="font-semibold text-error">Categories could not be loaded</p>
+            <p className="font-semibold text-error">Your categories couldn’t be loaded</p>
             <p className="mt-2 text-sm text-muted">{loadError}</p>
             <Button variant="muted" onClick={() => loadCategories()} className="mt-4">
               Try again
@@ -221,7 +221,7 @@ const Categories = () => {
           </div>
           <h2 className="mt-4 text-lg font-semibold text-text">No categories yet</h2>
           <p className="mt-1 max-w-md text-sm text-muted">
-            Create categories to organize the income and expenses you record.
+            Add categories to keep your income and expenses organized.
           </p>
           <Button onClick={openCreateForm} className="mt-4 gap-2">
             <Plus size={17} />
@@ -315,7 +315,7 @@ const Categories = () => {
                 <h2 id="category-form-title" className="text-xl font-bold text-text">
                   {editingCategory ? 'Edit category' : 'Add category'}
                 </h2>
-                <p className="mt-1 text-sm text-muted">Choose a name and transaction type.</p>
+                <p className="mt-1 text-sm text-muted">Name the category and choose income or expense.</p>
               </div>
               <button
                 type="button"
@@ -344,7 +344,7 @@ const Categories = () => {
               />
               <div>
                 <label htmlFor="category-type" className="mb-2 block text-sm font-semibold text-text">
-                  Type
+                  Income or expense
                 </label>
                 <select
                   id="category-type"
@@ -394,8 +394,8 @@ const Categories = () => {
               Delete category?
             </h2>
             <p id="delete-category-description" className="mt-2 text-sm leading-6 text-muted">
-              Delete <span className="font-semibold text-text">{deletingCategory.name}</span>? Existing transactions
-              keep their saved category label.
+              Delete <span className="font-semibold text-text">{deletingCategory.name}</span>? Past transactions will
+              keep this category name.
             </p>
             {actionError && <p role="alert" className="mt-3 text-sm font-medium text-error">{actionError}</p>}
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

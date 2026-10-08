@@ -248,7 +248,7 @@ const Budgets = () => {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text sm:text-3xl">Budgets</h1>
-          <p className="mt-2 text-base font-medium text-muted">Set monthly spending limits by expense category.</p>
+          <p className="mt-2 text-base font-medium text-muted">Set how much you want to spend in each category each month.</p>
         </div>
         <Button onClick={openCreateForm} disabled={categories.length === 0} className="h-11 gap-2 px-5">
           <Plus size={18} />
@@ -259,7 +259,7 @@ const Budgets = () => {
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold text-muted">
           <CalendarDays size={18} />
-          Budget month
+          Month
         </div>
         <input
           aria-label="Select budget month"
@@ -286,7 +286,7 @@ const Budgets = () => {
       {loadError ? (
         <Card className="p-6">
           <div role="alert" className="text-center">
-            <p className="font-semibold text-error">Budgets could not be loaded</p>
+            <p className="font-semibold text-error">Your budgets couldn’t be loaded</p>
             <p className="mt-2 text-sm text-muted">{loadError}</p>
             <Button variant="muted" onClick={() => loadBudgets()} className="mt-4">Try again</Button>
           </div>
@@ -304,8 +304,8 @@ const Budgets = () => {
           <h2 className="mt-4 text-lg font-semibold text-text">No budgets for {formatMonth(month)}</h2>
           <p className="mt-1 max-w-md text-sm text-muted">
             {categories.length
-              ? 'Create a monthly limit for one of your expense categories to keep spending on track.'
-              : 'Create an expense category first, then you can set a monthly budget for it.'}
+              ? 'Set a monthly spending limit for a category to help stay on track.'
+              : 'First, add an expense category. Then you can set a monthly spending limit for it.'}
           </p>
           {categories.length ? (
             <Button onClick={openCreateForm} className="mt-4 gap-2">
@@ -327,7 +327,7 @@ const Budgets = () => {
                   <CircleDollarSign size={19} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted">Total monthly limits</p>
+                  <p className="text-sm font-medium text-muted">Total monthly budget</p>
                   <p className="text-xl font-bold text-text">{formatCurrency(totals.limit)}</p>
                 </div>
               </div>
@@ -464,7 +464,7 @@ const Budgets = () => {
                 <h2 id="budget-form-title" className="text-xl font-bold text-text">
                   {editingBudget ? 'Edit budget' : 'Create budget'}
                 </h2>
-                <p className="mt-1 text-sm text-muted">Set the category’s spending limit for a month.</p>
+                <p className="mt-1 text-sm text-muted">Choose a category and set how much you want to spend this month.</p>
               </div>
               <button
                 type="button"
@@ -483,7 +483,7 @@ const Budgets = () => {
               )}
               <div>
                 <label htmlFor="budget-category" className="mb-2 block text-sm font-semibold text-text">
-                  Expense category
+                  Category
                 </label>
                 <select
                   id="budget-category"
@@ -494,7 +494,7 @@ const Budgets = () => {
                   disabled={availableCategories.length === 0}
                   className="h-12 w-full rounded-lg border border-border bg-white px-3 text-text outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:bg-slate-50"
                 >
-                  <option value="" disabled>Select an expense category</option>
+                  <option value="" disabled>Select a category</option>
                   {availableCategories.map((category) => (
                     <option key={category.id} value={category.name}>{category.name}</option>
                   ))}

@@ -28,7 +28,7 @@ const Settings = () => {
     try {
       savePreferences(DEFAULT_PREFERENCES)
       setPreferences(DEFAULT_PREFERENCES)
-      notify('Settings restored to defaults.')
+      notify('Settings reset.')
     } catch {
       notify('Settings could not be saved on this device.', 'error')
     }
@@ -38,7 +38,7 @@ const Settings = () => {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-text">Settings</h1>
-        <p className="mt-2 text-base font-medium text-muted">Adjust how WatchMoni works for you.</p>
+        <p className="mt-2 text-base font-medium text-muted">Choose how WatchMoni works for you.</p>
       </div>
 
       <Card className="p-5 sm:p-7">
@@ -47,8 +47,8 @@ const Settings = () => {
             <SlidersHorizontal size={19} />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-text">Your preferences</h2>
-            <p className="mt-1 text-sm text-muted">These choices are saved on this device and used in your transaction list and form.</p>
+            <h2 className="text-lg font-bold text-text">Your settings</h2>
+            <p className="mt-1 text-sm text-muted">These choices are saved on this device and used when you view or add transactions.</p>
           </div>
         </div>
 
@@ -71,11 +71,11 @@ const Settings = () => {
           </div>
 
           <fieldset>
-            <legend className="mb-2 text-sm font-semibold text-text">Default transaction type</legend>
+            <legend className="mb-2 text-sm font-semibold text-text">Start new entries as</legend>
             <div className="grid gap-3 sm:grid-cols-2">
               {[
-                { value: 'expense', label: 'Expense', detail: 'Start new transactions as an expense.' },
-                { value: 'income', label: 'Income', detail: 'Start new transactions as income.' },
+                { value: 'expense', label: 'Expense', detail: 'New entries will start as expenses.' },
+                { value: 'income', label: 'Income', detail: 'New entries will start as income.' },
               ].map(({ value, label, detail }) => (
                 <label
                   key={value}
@@ -108,7 +108,7 @@ const Settings = () => {
               Save settings
             </Button>
             <Button variant="secondary" onClick={resetPreferences}>
-              Restore defaults
+              Reset settings
             </Button>
           </div>
         </form>

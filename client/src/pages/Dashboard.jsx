@@ -190,23 +190,64 @@ const Dashboard = () => {
     },
   }
 
+  const formatPercentage = (value, total) => `${((value / total) * 100).toFixed(1)}%`
   const summary = [
-    { label: 'Income', value: totals.income, tone: 'text-emerald-600' },
-    { label: 'Expenses', value: totals.expenses, tone: 'text-rose-600' },
-    { label: 'Balance', value: balance, tone: balance >= 0 ? 'text-primary' : 'text-error' },
+    {
+      label: 'Income',
+      value: totals.income,
+      tone: totals.income >= totals.expenses ? 'text-emerald-600' : 'text-rose-600',
+      percentageTone: totals.expenses > 0
+        ? totals.income >= totals.expenses ? 'text-emerald-600' : 'text-rose-600'
+        : 'text-muted',
+      description: totals.expenses > 0
+        ? { before: 'Your income was ', percentage: formatPercentage(totals.income, totals.expenses), after: ' of your expenses' }
+        : { text: 'Add an expense to see how your income compares' },
+    },
+    {
+      label: 'Expenses',
+      value: totals.expenses,
+      tone: 'text-rose-600',
+      percentageTone: 'text-rose-600',
+      description: totals.income > 0
+        ? { before: 'You spent ', percentage: formatPercentage(totals.expenses, totals.income), after: ' of your income' }
+        : { text: 'Add income to see how your spending compares' },
+    },
+    {
+      label: 'Balance',
+      value: balance,
+      tone: balance >= 0 ? 'text-emerald-600' : 'text-rose-600',
+      percentageTone: totals.expenses > 0
+        ? balance >= 0 ? 'text-emerald-600' : 'text-rose-600'
+        : 'text-muted',
+      description: totals.expenses > 0
+        ? {
+            before: balance > 0
+              ? 'Your income was '
+              : balance < 0
+                ? 'Your expenses were higher by '
+                : 'You broke even with ',
+            percentage: formatPercentage(Math.abs(balance), totals.expenses),
+            after: balance > 0
+              ? ' compared with your expenses'
+              : balance < 0
+                ? ' of your expenses'
+                : ' difference',
+          }
+        : { text: 'Add expenses to see how your balance compares' },
+    },
   ]
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-text sm:text-3xl">Welcome, {fullName.split(' ')[0]}.</h1>
-        <p className="pt-2 text-base font-medium text-muted">Here is your financial overview.</p>
+        <p className="pt-2 text-base font-medium text-muted">Here’s a summary of your money.</p>
       </div>
 
       {loadError && (
         <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-error/30 bg-rose-50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-semibold text-error">Dashboard data could not be loaded</p>
+            <p className="font-semibold text-error">Your dashboard couldn’t be loaded</p>
             <p className="mt-1 text-sm text-muted">{loadError}</p>
           </div>
           <Button variant="muted" onClick={() => loadTransactions()}>
@@ -218,7 +259,7 @@ const Dashboard = () => {
       {isLoading ? (
         <div className="flex min-h-64 flex-col items-center justify-center gap-3 text-muted" role="status">
           <LoaderCircle size={30} className="animate-spin text-primary" />
-          <span className="text-sm font-medium">Loading your financial overview...</span>
+          <span className="text-sm font-medium">Loading your dashboard...</span>
         </div>
       ) : !loadError && (
         <>
@@ -229,7 +270,15 @@ const Dashboard = () => {
                 <p className={`mt-3 break-words text-2xl font-bold sm:text-3xl ${item.tone}`}>
                   {formatCurrency(item.value)}
                 </p>
-                <p className="mt-2 text-xs font-medium text-muted">Based on all recorded transactions</p>
+                <p className="mt-2 text-sm font-medium text-muted">
+                  {item.description.text || (
+                    <>
+                      {item.description.before}
+                      <span className={`font-bold ${item.percentageTone}`}>{item.description.percentage}</span>
+                      {item.description.after}
+                    </>
+                  )}
+                </p>
               </Card>
             ))}
           </div>
@@ -241,7 +290,7 @@ const Dashboard = () => {
               </div>
               <h2 className="mt-4 text-lg font-semibold text-text">Start tracking your money</h2>
               <p className="mt-1 max-w-md text-sm text-muted">
-                Your income, expense summaries, and charts will appear here once you add transactions.
+                Add your income and expenses to see your spending summary and charts.
               </p>
               <Link
                 to="/transactions"
@@ -253,10 +302,10 @@ const Dashboard = () => {
           ) : (
             <>
               <div className="grid gap-6 xl:grid-cols-2">
-                <Card title="Spending by category" subtitle="Expense totals across your recorded transactions.">
+                <Card title="Where your money goes" subtitle="See how much you spent in each category.">
                   {spendingByCategory.length === 0 ? (
                     <div className="flex min-h-64 items-center justify-center text-center text-sm font-medium text-muted">
-                      No expenses recorded yet.
+                      No expenses yet.
                     </div>
                   ) : (
                     <div className="mx-auto h-72 max-w-xl">
@@ -279,7 +328,7 @@ const Dashboard = () => {
                   )}
                 </Card>
 
-                <Card title="Monthly trend" subtitle="Income and expenses for the last six months.">
+                <Card title="Monthly income and expenses" subtitle="Compare the money you received and spent over the last six months.">
                   <div className="h-72 min-w-0">
                     <Line
                       data={monthlyChartData}
@@ -300,7 +349,7 @@ const Dashboard = () => {
 
               <Card
                 title="Recent transactions"
-                subtitle="Your latest recorded income and expenses."
+                subtitle="Your latest income and expenses."
                 action={
                   <Link to="/transactions" className="text-sm font-semibold text-primary hover:text-primary/80">
                     View all

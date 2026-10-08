@@ -305,7 +305,7 @@ const Transactions = () => {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text sm:text-3xl">Transactions</h1>
-          <p className="mt-2 text-base font-medium text-muted">Review your cash flow and activity history.</p>
+          <p className="mt-2 text-base font-medium text-muted">See the money you’ve received and spent.</p>
         </div>
         <Button onClick={openCreateForm} className="h-11 gap-2 rounded-xl px-5">
           <Plus size={18} />
@@ -336,14 +336,14 @@ const Transactions = () => {
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm font-medium text-muted">Net</p>
+          <p className="text-sm font-medium text-muted">Balance</p>
           <p className={`mt-3 break-words text-2xl font-bold sm:text-3xl ${net >= 0 ? 'text-primary' : 'text-error'}`}>
             {formatCurrency(net)}
           </p>
         </Card>
       </div>
 
-      <Card title="All transactions" subtitle="Search, filter, and manage your activity.">
+      <Card title="All transactions" subtitle="Find and manage your income and expenses.">
         <div className="mb-5 space-y-4">
           <label className="relative block">
             <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
@@ -351,7 +351,7 @@ const Transactions = () => {
               type="search"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search name, category, or payment method"
+              placeholder="Search by name, category, or payment method"
               aria-label="Search transactions"
               className="h-11 w-full rounded-xl border border-border bg-white pl-10 pr-4 text-sm text-text outline-none transition placeholder:text-muted/80 focus:border-primary focus:ring-2 focus:ring-primary/15"
             />
@@ -378,7 +378,7 @@ const Transactions = () => {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted">
                 <CalendarDays size={17} />
-                Date range
+                Choose dates
               </div>
               <label className="text-xs font-semibold text-muted">
                 From
@@ -417,7 +417,7 @@ const Transactions = () => {
 
         {loadError ? (
           <div role="alert" className="rounded-2xl border border-error/30 bg-rose-50 p-6 text-center">
-            <p className="font-semibold text-error">Transactions could not be loaded</p>
+            <p className="font-semibold text-error">Your transactions couldn’t be loaded</p>
             <p className="mt-2 text-sm text-muted">{loadError}</p>
             <Button variant="muted" onClick={() => loadTransactions()} className="mt-4">
               Try again
@@ -438,8 +438,8 @@ const Transactions = () => {
             </p>
             <p className="mt-1 max-w-md text-sm text-muted">
               {transactions.length === 0
-                ? 'Add your first transaction to start tracking income and expenses.'
-                : 'Try changing your search or filters to find what you need.'}
+              ? 'Add your first income or expense to get started.'
+              : 'Try a different search or date range.'}
             </p>
             {transactions.length === 0 && (
               <Button onClick={openCreateForm} className="mt-4 gap-2">
@@ -487,7 +487,7 @@ const Transactions = () => {
                     <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-muted">
                       {formatDate(transaction.date)}
                     </td>
-                    <td className={`whitespace-nowrap px-4 py-4 text-right font-bold ${transaction.type === 'income' ? 'text-emerald-600' : 'text-text'}`}>
+                    <td className={`whitespace-nowrap px-4 py-4 text-right font-bold ${transaction.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
                       {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                     </td>
                     <td className="px-4 py-4">
@@ -546,7 +546,7 @@ const Transactions = () => {
                 <h2 id="transaction-form-title" className="text-xl font-bold text-text">
                   {editingTransaction ? 'Edit transaction' : 'Add transaction'}
                 </h2>
-                <p className="mt-1 text-sm text-muted">Enter the details of this money activity.</p>
+                <p className="mt-1 text-sm text-muted">Add the details below.</p>
               </div>
               <button
                 type="button"
@@ -568,7 +568,7 @@ const Transactions = () => {
                 <Input
                   id="transaction-name"
                   name="name"
-                  label="Name"
+                  label="Description"
                   value={form.name}
                   onChange={handleFormChange}
                   placeholder="e.g. Grocery shopping"
@@ -606,7 +606,7 @@ const Transactions = () => {
                     </div>
                   ) : !isLoadingCategories && availableCategories.length === 0 ? (
                     <p className="mt-2 text-xs font-medium text-muted">
-                      No {form.type} categories yet.{' '}
+                      No {form.type === 'income' ? 'income' : 'expense'} categories yet.{' '}
                       <Link to="/categories" className="font-bold text-primary underline">
                         Create one first
                       </Link>
@@ -616,7 +616,7 @@ const Transactions = () => {
                 </div>
                 <div>
                   <label htmlFor="transaction-type" className="mb-2 block text-sm font-semibold text-text">
-                    Type
+                    Income or expense
                   </label>
                   <select
                     id="transaction-type"
@@ -653,7 +653,7 @@ const Transactions = () => {
                 <Input
                   id="transaction-method"
                   name="method"
-                  label="Payment method (optional)"
+                  label="Paid with (optional)"
                   value={form.method}
                   onChange={handleFormChange}
                   placeholder="e.g. Debit card"
@@ -671,7 +671,7 @@ const Transactions = () => {
                   onChange={handleFormChange}
                   maxLength={500}
                   rows={3}
-                  placeholder="Add a note about this transaction"
+                  placeholder="Add a note (optional)"
                   className="w-full resize-y rounded-lg border border-border bg-white px-3 py-2.5 text-text outline-none transition placeholder:text-muted/80 focus:border-primary focus:ring-2 focus:ring-primary/15"
                 />
               </div>
