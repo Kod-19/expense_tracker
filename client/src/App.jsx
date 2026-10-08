@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Menu } from 'lucide-react'
 import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import Brand from './components/Brand'
 import MobileNavigation from './components/MobileNavigation'
 import Sidebar from './components/Sidebar'
 import { useAuth } from './context/AuthContext'
@@ -93,7 +94,7 @@ const AppLayout = () => {
         >
           <Menu size={22} />
         </button>
-        <span className="text-base font-bold text-text">Expense Tracker</span>
+        <Brand className="text-base [&_img]:h-8 [&_img]:w-8 [&_span]:text-base" />
         <NavLink
           to="/profile"
           aria-label="Open your profile"

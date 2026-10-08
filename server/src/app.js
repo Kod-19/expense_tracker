@@ -57,7 +57,7 @@ app.use("/api/budgets", budgetRoutes);
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "Expense Tracker API is running. Use /api/health to check the server.",
+    message: "WatchMoni API is running. Use /api/health to check the server.",
     frontend: process.env.CLIENT_URL || "http://localhost:5173",
   });
 });
@@ -65,7 +65,7 @@ app.get("/", (req, res) => {
 app.get("/api/health", (req, res) => {
   res.json({
     success: true,
-    message: "Expense Tracker API is running",
+    message: "WatchMoni API is running",
   });
 });
 

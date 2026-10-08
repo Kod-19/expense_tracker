@@ -41,7 +41,7 @@ Example response:
 ```json
 {
   "success": true,
-  "message": "Expense Tracker API is running. Use /api/health to check the server.",
+  "message": "WatchMoni API is running. Use /api/health to check the server.",
   "frontend": "http://localhost:5173"
 }
 ```

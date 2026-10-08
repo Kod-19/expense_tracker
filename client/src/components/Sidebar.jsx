@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import Brand from './Brand'
 
 export const navLinks = [
   {
@@ -65,8 +66,13 @@ const Sidebar = ({ mobile = false, onNavigate = () => {} }) => {
       ].join(' ')}
     >
       <div className="mb-8 flex items-center justify-between">
-        <NavLink to="/" onClick={onNavigate} className="text-xl font-bold text-text">
-          Expense Tracker
+        <NavLink
+          to="/"
+          onClick={onNavigate}
+          aria-label="WatchMoni home"
+          className="rounded-xl transition-opacity hover:opacity-80 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+        >
+          <Brand />
         </NavLink>
         
         {mobile && (

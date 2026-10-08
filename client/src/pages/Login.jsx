@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import Brand from '../components/Brand'
 import { useAuth } from '../context/AuthContext'
 
 const Login = () => {
@@ -28,12 +29,20 @@ const Login = () => {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-6 sm:py-8">
-      <form
-        onSubmit={handleSubmit}
-        autoComplete="on"
-        className="w-full max-w-md rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8"
-      >
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-6 sm:py-8">
+      <div className="w-full max-w-md">
+        <Link
+          to="/login"
+          aria-label="WatchMoni sign in"
+          className="mb-6 flex justify-center rounded-xl transition-opacity hover:opacity-80 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+        >
+          <Brand greeting />
+        </Link>
+        <form
+          onSubmit={handleSubmit}
+          autoComplete="on"
+          className="w-full rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8"
+        >
         <h1 className="text-2xl font-bold text-text sm:text-3xl">Welcome back</h1>
         <p className="mt-2 text-sm font-medium text-muted">Sign in to continue tracking your money.</p>
 
@@ -92,11 +101,12 @@ const Login = () => {
 
         <p className="mt-5 text-center text-sm font-medium text-muted">
           Need an account?{' '}
-          <Link to="/register" className="font-bold text-teal hover:text-teal/80">
+          <Link to="/register" className="font-bold text-primary">
             Create one
           </Link>
         </p>
-      </form>
+        </form>
+      </div>
     </main>
   )
 }

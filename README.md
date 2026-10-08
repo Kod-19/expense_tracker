@@ -1,6 +1,6 @@
-# Expense Tracker
+# WatchMoni
 
-Expense Tracker is a simple full-stack web app for managing personal money activity. It helps users create an account, sign in, view their profile, organize categories, and manage income and expense transactions.
+WatchMoni is a simple full-stack web app for managing personal money activity. It helps users create an account, sign in, view their profile, organize categories, and manage income and expense transactions.
 
 ## What this project does
 

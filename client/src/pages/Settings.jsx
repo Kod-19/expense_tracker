@@ -38,7 +38,7 @@ const Settings = () => {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-text">Settings</h1>
-        <p className="mt-2 text-base font-medium text-muted">Adjust how Expense Tracker works for you.</p>
+        <p className="mt-2 text-base font-medium text-muted">Adjust how WatchMoni works for you.</p>
       </div>
 
       <Card className="p-5 sm:p-7">
