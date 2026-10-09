@@ -125,7 +125,7 @@ const AppLayout = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Main navigation"
-            className="relative z-10 h-full w-[min(18rem,85vw)] shadow-2xl"
+            className="relative z-10 h-full w-[min(18rem,85vw)]"
           >
             <Sidebar mobile onNavigate={() => setIsMenuOpen(false)} />
           </div>
