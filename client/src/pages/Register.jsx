@@ -13,6 +13,7 @@ const Register = () => {
   const [password, setPassword] = useState('')
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [error, setError] = useState('')
+  const [registrationNotice, setRegistrationNotice] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
 
@@ -31,6 +32,7 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
+    setRegistrationNotice('')
 
     if (!fullName.trim() || !email.trim() || password.length < 8) {
       setError('Enter your full name, a valid email, and a password with at least 8 characters.')
@@ -40,8 +42,14 @@ const Register = () => {
     setIsSubmitting(true)
 
     try {
-      await register(email, password, fullName)
-      navigate('/', { replace: true })
+      const data = await register(email, password, fullName)
+      if (data.session?.access_token) {
+        navigate('/dashboard', { replace: true })
+      } else {
+        setRegistrationNotice(
+          'Your account has been created. Check your email for a confirmation link, then sign in to continue.'
+        )
+      }
     } catch (err) {
       setError(err.message)
     } finally {
@@ -68,8 +76,13 @@ const Register = () => {
         <p className="mt-2 text-sm font-medium text-muted">Create an account to keep your money organized.</p>
 
         {error && (
-          <p className="mt-5 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm font-medium text-error">
+          <p role="alert" className="mt-5 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm font-medium text-error">
             {error}
+          </p>
+        )}
+        {registrationNotice && (
+          <p role="status" className="mt-5 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm font-medium text-success">
+            {registrationNotice}
           </p>
         )}
 

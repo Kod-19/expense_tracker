@@ -15,7 +15,7 @@ import Brand from './Brand'
 export const navLinks = [
   {
     name: 'Dashboard',
-    navLink: '/',
+    navLink: '/dashboard',
     icon: LayoutDashboard,
   },
   {
@@ -55,7 +55,7 @@ const Sidebar = ({ mobile = false, onNavigate = () => {} }) => {
   const handleLogout = async () => {
     await logout()
     onNavigate()
-    navigate('/login', { replace: true })
+    navigate('/', { replace: true })
   }
 
   return (
@@ -67,7 +67,7 @@ const Sidebar = ({ mobile = false, onNavigate = () => {} }) => {
     >
       <div className="mb-8 flex items-center justify-between">
         <NavLink
-          to="/"
+          to="/dashboard"
           onClick={onNavigate}
           aria-label="WatchMoni home"
           className="rounded-xl transition-opacity hover:opacity-80 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
@@ -96,7 +96,7 @@ const Sidebar = ({ mobile = false, onNavigate = () => {} }) => {
               <li key={link.name}>
                 <NavLink
                   to={link.navLink}
-                  end={link.navLink === '/'}
+                  end={link.navLink === '/dashboard'}
                   onClick={onNavigate}
                   className={({ isActive }) =>
                     [

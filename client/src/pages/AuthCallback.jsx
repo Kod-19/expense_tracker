@@ -68,7 +68,7 @@ const AuthCallback = () => {
 
       window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}`)
       await completeOAuthLogin(session, user)
-      navigate('/', { replace: true })
+      navigate('/dashboard', { replace: true })
     }
 
     completeSignIn().catch((callbackError) => {
@@ -96,7 +96,7 @@ const AuthCallback = () => {
               {isAuthenticated ? (
                 <button
                   type="button"
-                  onClick={() => navigate('/', { replace: true })}
+                  onClick={() => navigate('/dashboard', { replace: true })}
                   className="mt-6 h-12 w-full rounded-lg bg-primary px-4 text-sm font-bold text-white"
                 >
                   Continue to WatchMoni

@@ -9,6 +9,7 @@ import Budgets from './pages/Budgets'
 import Categories from './pages/Categories'
 import Dashboard from './pages/Dashboard'
 import AuthCallback from './pages/AuthCallback'
+import GetStarted from './pages/GetStarted'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
@@ -155,9 +156,16 @@ const PublicRoute = () => {
   return <Outlet />
 }
 
+const HomeRoute = () => {
+  const { isAuthenticated } = useAuth()
+
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <GetStarted />
+}
+
 const App = () => (
   <Routes>
     <Route path="/auth/callback" element={<AuthCallback />} />
+    <Route path="/" element={<HomeRoute />} />
     <Route element={<PublicRoute />}>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -165,7 +173,7 @@ const App = () => (
 
     <Route element={<ProtectedRoute />}>
       <Route element={<AppLayout />}>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/budgets" element={<Budgets />} />
