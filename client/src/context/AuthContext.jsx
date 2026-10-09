@@ -5,6 +5,22 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:500
 
 const AuthContext = createContext(null)
 
+const IN_APP_BROWSER_PATTERNS = [
+  ['Instagram', /Instagram/i],
+  ['Snapchat', /Snapchat/i],
+  ['LinkedIn', /LinkedInApp/i],
+  ['Facebook', /FBAN|FBAV|FB_IAB/i],
+  ['TikTok', /TikTok|BytedanceWebview|musical_ly/i],
+  ['X', /Twitter|TwitterAndroid/i],
+  ['WeChat', /MicroMessenger/i],
+  ['LINE', /Line\//i],
+  ['Telegram', /Telegram/i],
+  ['an in-app browser', /; wv\)/i],
+]
+
+const getInAppBrowserName = (userAgent) =>
+  IN_APP_BROWSER_PATTERNS.find(([, pattern]) => pattern.test(userAgent))?.[0]
+
 const getStoredAuth = () => {
   const storedAuth = localStorage.getItem('expense_tracker_auth')
 
@@ -240,11 +256,21 @@ export const AuthProvider = ({ children }) => {
     })
 
   const loginWithGoogle = useCallback(async () => {
+    const inAppBrowserName = getInAppBrowserName(window.navigator.userAgent)
+    if (inAppBrowserName) {
+      throw new Error(
+        `Google sign-in may not work in ${inAppBrowserName}'s in-app browser. Open this page in Safari or Chrome using the browser menu, or copy this page's address and open it there.`
+      )
+    }
+
     const { data, error } = await getSupabaseClient().auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
         skipBrowserRedirect: true,
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     })
 
