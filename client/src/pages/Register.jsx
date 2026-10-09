@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import Brand from '../components/Brand'
+import GoogleAuthButton from '../components/GoogleAuthButton'
 import { useAuth } from '../context/AuthContext'
 
 const Register = () => {
-  const { register } = useAuth()
+  const { register, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -13,6 +14,19 @@ const Register = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
+
+  const handleGoogleSignIn = async () => {
+    setError('')
+    setIsGoogleSubmitting(true)
+
+    try {
+      await loginWithGoogle()
+    } catch (err) {
+      setError(err.message)
+      setIsGoogleSubmitting(false)
+    }
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -116,11 +130,23 @@ const Register = () => {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isGoogleSubmitting}
           className="mt-6 h-12 w-full rounded-lg bg-primary px-4 text-md font-bold text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSubmitting ? 'Creating account...' : 'Create account'}
         </button>
+
+        <div className="my-5 flex items-center gap-3 text-xs font-medium text-muted" aria-hidden="true">
+          <span className="h-px flex-1 bg-border" />
+          <span>OR</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <GoogleAuthButton
+          onClick={handleGoogleSignIn}
+          disabled={isSubmitting || isGoogleSubmitting}
+        >
+          {isGoogleSubmitting ? 'Connecting to Google...' : 'Sign up with Google'}
+        </GoogleAuthButton>
 
         <p className="mt-5 text-center text-sm font-medium text-muted">
           Already have an account?{' '}

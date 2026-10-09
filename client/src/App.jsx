@@ -8,6 +8,7 @@ import { useAuth } from './context/AuthContext'
 import Budgets from './pages/Budgets'
 import Categories from './pages/Categories'
 import Dashboard from './pages/Dashboard'
+import AuthCallback from './pages/AuthCallback'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
@@ -156,6 +157,7 @@ const PublicRoute = () => {
 
 const App = () => (
   <Routes>
+    <Route path="/auth/callback" element={<AuthCallback />} />
     <Route element={<PublicRoute />}>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

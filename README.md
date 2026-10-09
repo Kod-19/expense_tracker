@@ -93,6 +93,16 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 ```
 
+Create `client/.env` from `client/.env.example` and set:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_publishable_or_anon_key
+```
+
+The Supabase URL and publishable/anon key are intended for browser use. Never put the Supabase service-role key in the client environment.
+
 ### 4. Start the apps
 
 Run the frontend:
@@ -131,6 +141,22 @@ The backend usually runs on:
 
 - http://localhost:5000
 
+## Enable Google sign-in with Supabase
+
+The login and registration pages include Google buttons. Supabase Auth handles the Google OAuth flow using PKCE and creates an account the first time someone signs in; the callback then saves the Supabase session in the app and creates or updates that user's WatchMoni profile. The callback also accepts an implicit-flow token response to complete an older in-flight login.
+
+1. In the [Google Cloud Console](https://console.cloud.google.com/), choose or create a project and configure the OAuth consent screen. Use **External** for consumer accounts; while the app is in testing mode, add the Google accounts that need to test it.
+2. Create an OAuth client ID with application type **Web application**.
+3. In Supabase, open **Authentication → Providers → Google** and enable Google. Copy the client ID and client secret from Google Cloud into the provider settings and save.
+4. In the Supabase Google provider settings, copy the Supabase callback URL (it looks like `https://<project-ref>.supabase.co/auth/v1/callback`). In Google Cloud, add that exact URL under the OAuth client's **Authorized redirect URIs**.
+5. In Supabase, open **Authentication → URL Configuration**. Set the **Site URL** to your frontend origin, for example `http://localhost:5173`, and add each app callback URL to **Redirect URLs**:
+   - `http://localhost:5173/auth/callback`
+   - `https://your-deployed-frontend.example/auth/callback`
+6. Put the Supabase project URL and publishable/anon key in `client/.env` as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Restart the Vite development server after editing environment variables.
+7. Open `/login` or `/register`, choose the Google button, and authorize with a Google account. For production, replace the example deployed URL in both Supabase's Redirect URLs and the frontend environment with the real HTTPS frontend URL.
+
+The Google **Authorized redirect URI** is Supabase's `/auth/v1/callback` URL; the Supabase **Redirect URLs** are the app's `/auth/callback` URLs. They are different steps in the OAuth return path. OAuth credentials belong in Supabase's provider settings, not in frontend environment variables. Only the publishable/anon key should be exposed to the browser.
+
 ## Deploying the backend to Vercel
 
 The Express application is exported from `server/src/app.js`, which Vercel detects and runs as a serverless Function. `server/src/server.js` remains the local development entry point and starts the same app with `app.listen()`.
@@ -147,6 +173,7 @@ To deploy the API separately from the Vite frontend:
    - `CLIENT_URL` set to the exact deployed frontend origin, such as `https://your-frontend.vercel.app`.
 4. Deploy and check `https://your-backend.vercel.app/api/health`.
 5. Set `VITE_API_BASE_URL` in the frontend Vercel project to the backend origin, without a trailing slash, then redeploy the frontend.
+6. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the frontend Vercel project, then redeploy. Also add the production frontend's `/auth/callback` URL to Supabase **Authentication → URL Configuration → Redirect URLs**.
 
 Use production database credentials only in the backend project's environment settings. Do not expose `DATABASE_URL` or `SUPABASE_SERVICE_ROLE_KEY` as frontend environment variables. Apply reviewed database migrations to the production database separately before using the deployed app.
 

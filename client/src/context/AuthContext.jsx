@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { getSupabaseClient } from '../lib/supabase'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000').replace(/\/+$/, '')
 
@@ -24,12 +25,12 @@ export const AuthProvider = ({ children }) => {
   const authRef = useRef(auth)
   const refreshPromiseRef = useRef(null)
 
-  const saveAuth = ({ session, user, profile = null }) => {
+  const saveAuth = useCallback(({ session, user, profile = null }) => {
     const nextAuth = { session, user, profile }
     authRef.current = nextAuth
     localStorage.setItem('expense_tracker_auth', JSON.stringify(nextAuth))
     setAuth(nextAuth)
-  }
+  }, [])
 
   const clearAuth = useCallback(() => {
     const emptyAuth = { session: null, user: null, profile: null }
@@ -238,6 +239,69 @@ export const AuthProvider = ({ children }) => {
       full_name: fullName.trim(),
     })
 
+  const loginWithGoogle = useCallback(async () => {
+    const { data, error } = await getSupabaseClient().auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        skipBrowserRedirect: true,
+      },
+    })
+
+    if (error) {
+      throw error
+    }
+
+    if (!data.url) {
+      throw new Error('Supabase did not provide a Google sign-in URL.')
+    }
+
+    window.location.assign(data.url)
+  }, [])
+
+  const completeOAuthLogin = useCallback(async (session, user) => {
+    if (!session?.access_token || !user) {
+      throw new Error('Google sign-in did not return a valid user session.')
+    }
+
+    saveAuth({ session, user })
+
+    const possibleNames = [
+      user.user_metadata?.full_name,
+      user.user_metadata?.name,
+      user.email?.split('@')[0],
+    ]
+    const fullName = (possibleNames.find((name) => typeof name === 'string' && name.trim()) || 'User')
+      .trim()
+      .slice(0, 100)
+
+    let response
+    try {
+      response = await fetch(`${API_BASE_URL}/api/profile/me`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ full_name: fullName }),
+      })
+    } catch {
+      throw new Error(`Signed in with Google, but cannot reach API server at ${API_BASE_URL} to load your profile.`)
+    }
+
+    const data = await response.json().catch(() => null)
+    if (!response.ok || !data?.profile) {
+      throw new Error(data?.message || data?.error || 'Signed in with Google, but could not create your profile.')
+    }
+
+    setAuth((currentAuth) => {
+      const nextAuth = { ...currentAuth, profile: data.profile }
+      authRef.current = nextAuth
+      localStorage.setItem('expense_tracker_auth', JSON.stringify(nextAuth))
+      return nextAuth
+    })
+  }, [saveAuth])
+
   const logout = useCallback(async () => {
     const accessToken = authRef.current.session?.access_token
 
@@ -263,10 +327,12 @@ export const AuthProvider = ({ children }) => {
       fetchProfile,
       updateProfile,
       login,
+      loginWithGoogle,
+      completeOAuthLogin,
       register,
       logout,
     }),
-    [auth, authorizedFetch]
+    [auth, authorizedFetch, completeOAuthLogin, loginWithGoogle]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
