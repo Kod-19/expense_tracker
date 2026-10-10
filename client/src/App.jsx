@@ -4,6 +4,7 @@ import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } fr
 import Brand from './components/Brand'
 import MobileNavigation from './components/MobileNavigation'
 import Sidebar from './components/Sidebar'
+import ThemeToggle from './components/ThemeToggle'
 import { useAuth } from './context/AuthContext'
 import Budgets from './pages/Budgets'
 import Categories from './pages/Categories'
@@ -163,27 +164,30 @@ const HomeRoute = () => {
 }
 
 const App = () => (
-  <Routes>
-    <Route path="/auth/callback" element={<AuthCallback />} />
-    <Route path="/" element={<HomeRoute />} />
-    <Route element={<PublicRoute />}>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-    </Route>
-
-    <Route element={<ProtectedRoute />}>
-      <Route element={<AppLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/transactions" element={<Transactions />} />
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/budgets" element={<Budgets />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
+  <>
+    <ThemeToggle />
+    <Routes>
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/" element={<HomeRoute />} />
+      <Route element={<PublicRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Route>
-    </Route>
 
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/budgets" element={<Budgets />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  </>
 )
 
 export default App

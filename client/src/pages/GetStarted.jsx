@@ -28,7 +28,7 @@ const GetStarted = () => (
       <Brand />
       <Link
         to="/login"
-        className="rounded-lg px-4 py-2 text-sm font-bold text-text transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        className="rounded-lg px-4 py-2 text-sm font-bold text-text transition hover:bg-surface hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         Sign in
       </Link>
@@ -111,7 +111,7 @@ const GetStarted = () => (
           </div>
           <Link
             to="/register"
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-primary transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="get-started-account-button inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-primary transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             Create an account
             <ArrowRight size={17} />

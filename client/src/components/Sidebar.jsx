@@ -80,7 +80,7 @@ const Sidebar = ({ mobile = false, onNavigate = () => {} }) => {
             type="button"
             onClick={onNavigate}
             aria-label="Close navigation menu"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-text transition hover:bg-white/60"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-text transition hover:bg-surface/70"
           >
             <X size={21} />
           </button>
@@ -103,7 +103,7 @@ const Sidebar = ({ mobile = false, onNavigate = () => {} }) => {
                       'flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition',
                       isActive
                         ? 'bg-primary text-white shadow-sm'
-                        : 'text-muted hover:bg-white/60 hover:text-text',
+                        : 'text-muted hover:bg-surface/70 hover:text-text',
                     ].join(' ')
                   }
                 >
@@ -129,7 +129,7 @@ const Sidebar = ({ mobile = false, onNavigate = () => {} }) => {
                   className={({ isActive }) =>
                     [
                       'flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition',
-                      isActive ? 'bg-primary text-white shadow-sm' : 'text-muted hover:bg-white/60 hover:text-text',
+                      isActive ? 'bg-primary text-white shadow-sm' : 'text-muted hover:bg-surface/70 hover:text-text',
                     ].join(' ')
                   }
                 >
@@ -143,7 +143,7 @@ const Sidebar = ({ mobile = false, onNavigate = () => {} }) => {
             <button
               type="button"
               onClick={handleLogout}
-              className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold text-muted transition hover:bg-white/60 hover:text-error"
+              className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold text-muted transition hover:bg-surface/70 hover:text-error"
             >
               <LogOut size={19} />
               Logout

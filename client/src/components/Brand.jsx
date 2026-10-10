@@ -7,7 +7,7 @@ const Brand = ({ greeting = false, className = '' }) => {
       <span className={greeting ? 'text-lg font-semibold text-muted sm:text-xl' : 'text-xl font-bold tracking-tight text-text'}>
         {greeting ? (
           <>
-            Welcome to <span className="font-bold text-primary">Watch<span className="font-bold text-teal">Moni</span></span>
+            Welcome to <span className="font-bold text-text">WatchMoni</span>
           </>
         ) : (
           'WatchMoni'

@@ -7,15 +7,66 @@
 
   --color-primary: #2663EB;
   --color-teal: #14A6A1;
-  --color-mint: #C2F0E0;
+  --color-mint: var(--app-mint);
   --color-success: #29A86E;
   --color-warning: #F0A329;
   --color-error: #DB4045;
-  --color-background: #F8FAFC;
-  --color-surface: #FFFFFF;
-  --color-text: #1E293B;
-  --color-muted: #64748B;
-  --color-border: #E2E8F0;
+  --color-background: var(--app-background);
+  --color-surface: var(--app-surface);
+  --color-text: var(--app-text);
+  --color-muted: var(--app-muted);
+  --color-border: var(--app-border);
+}
+
+:root {
+  --app-background: #F8FAFC;
+  --app-surface: #FFFFFF;
+  --app-text: #1E293B;
+  --app-muted: #64748B;
+  --app-border: #E2E8F0;
+  --app-mint: #C2F0E0;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --app-background: #000000;
+  --app-surface: #0A0A0A;
+  --app-text: #F8FAFC;
+  --app-muted: #A3A3A3;
+  --app-border: #262626;
+  --app-mint: #111111;
+}
+
+:root[data-theme='dark'] .bg-white {
+  background-color: var(--color-surface);
+}
+
+:root[data-theme='dark'] .bg-slate-50 {
+  background-color: #0A0A0A;
+}
+
+:root[data-theme='dark'] .bg-slate-100 {
+  background-color: #171717;
+}
+
+:root[data-theme='dark'] .bg-slate-200 {
+  background-color: #262626;
+}
+
+:root[data-theme='dark'] .hover\:bg-slate-50:hover {
+  background-color: #0A0A0A;
+}
+
+:root[data-theme='dark'] .hover\:bg-slate-100:hover {
+  background-color: #171717;
+}
+
+:root[data-theme='dark'] .hover\:bg-slate-200:hover {
+  background-color: #262626;
+}
+
+:root[data-theme='dark'] .get-started-account-button {
+  color: #FFFFFF;
 }
 
 /* Global page styles */

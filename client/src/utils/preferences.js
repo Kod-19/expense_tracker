@@ -3,6 +3,7 @@ const STORAGE_KEY = 'expense_tracker_preferences'
 export const DEFAULT_PREFERENCES = {
   dateFormat: 'DD/MM/YYYY',
   defaultTransactionType: 'expense',
+  theme: 'system',
 }
 
 export const getPreferences = () => {
@@ -16,9 +17,12 @@ export const getPreferences = () => {
       defaultTransactionType: ['expense', 'income'].includes(storedPreferences.defaultTransactionType)
         ? storedPreferences.defaultTransactionType
         : DEFAULT_PREFERENCES.defaultTransactionType,
+      theme: ['system', 'light', 'dark'].includes(storedPreferences.theme)
+        ? storedPreferences.theme
+        : DEFAULT_PREFERENCES.theme,
     }
   } catch {
-    return DEFAULT_PREFERENCES
+    return { ...DEFAULT_PREFERENCES }
   }
 }
 
@@ -30,6 +34,9 @@ export const savePreferences = (preferences) => {
     defaultTransactionType: ['expense', 'income'].includes(preferences.defaultTransactionType)
       ? preferences.defaultTransactionType
       : DEFAULT_PREFERENCES.defaultTransactionType,
+    theme: ['system', 'light', 'dark'].includes(preferences.theme)
+      ? preferences.theme
+      : DEFAULT_PREFERENCES.theme,
   }
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(nextPreferences))
