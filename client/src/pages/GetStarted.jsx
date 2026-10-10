@@ -1,6 +1,7 @@
 import { ArrowRight, ArrowUpRight, CircleDollarSign, ClipboardList, PieChart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Brand from '../components/Brand'
+import ThemeToggle from '../components/ThemeToggle'
 import financeWorkspace from '../assets/jakub-zerdzicki-heiYgqp0Tsk-unsplash.jpg'
 import ghanaCedis from '../assets/ghana-cedis.jpg'
 
@@ -23,15 +24,20 @@ const steps = [
 ]
 
 const GetStarted = () => (
-  <main className="min-h-screen overflow-hidden bg-background">
-    <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
-      <Brand />
-      <Link
-        to="/login"
-        className="rounded-lg px-4 py-2 text-sm font-bold text-text transition hover:bg-surface hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        Sign in
-      </Link>
+  <main className="min-h-screen bg-background">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-8 sm:py-5 lg:px-12">
+        <Brand />
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            to="/login"
+            className="rounded-lg px-3 py-2 text-sm font-bold text-text transition hover:bg-surface hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:px-4"
+          >
+            Sign in
+          </Link>
+          <ThemeToggle className="static" />
+        </div>
+      </div>
     </header>
 
     <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-8 sm:px-8 sm:pb-20 lg:grid-cols-[1fr_0.95fr] lg:gap-16 lg:px-12 lg:pb-24 lg:pt-12">

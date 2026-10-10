@@ -1,7 +1,7 @@
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 
-const ThemeToggle = () => {
+const ThemeToggle = ({ className = 'fixed right-3 top-3 z-40' }) => {
   const { resolvedTheme, toggleTheme } = useTheme()
   const isDark = resolvedTheme === 'dark'
   const Icon = isDark ? Sun : Moon
@@ -13,7 +13,7 @@ const ThemeToggle = () => {
       aria-pressed={isDark}
       title={`Switch to ${isDark ? 'light' : 'dark'} theme`}
       onClick={toggleTheme}
-      className="fixed right-16 top-3 z-[60] flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-text shadow-md transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:right-4 lg:top-4"
+      className={`${className} flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text shadow-md transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
     >
       <Icon size={20} aria-hidden="true" />
     </button>

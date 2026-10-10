@@ -86,7 +86,7 @@ const AppLayout = () => {
         <Sidebar />
       </div>
 
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-4 backdrop-blur sm:px-6 lg:hidden">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-4 pr-16 backdrop-blur sm:px-6 sm:pr-16 lg:hidden">
         <button
           type="button"
           onClick={() => setIsMenuOpen(true)}
@@ -163,10 +163,13 @@ const HomeRoute = () => {
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <GetStarted />
 }
 
-const App = () => (
-  <>
-    <ThemeToggle />
-    <Routes>
+const App = () => {
+  const location = useLocation()
+
+  return (
+    <>
+      {location.pathname !== '/' && <ThemeToggle />}
+      <Routes>
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/" element={<HomeRoute />} />
       <Route element={<PublicRoute />}>
@@ -186,8 +189,9 @@ const App = () => (
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  </>
-)
+      </Routes>
+    </>
+  )
+}
 
 export default App
