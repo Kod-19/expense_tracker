@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import Brand from '../components/Brand'
-import ThemeToggle from '../components/ThemeToggle'
 import { useAuth } from '../context/AuthContext'
 import { getSupabaseClient } from '../lib/supabase'
 
@@ -80,16 +79,13 @@ const AuthCallback = () => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-6 sm:py-8">
       <div className="w-full max-w-md">
-        <header className="mb-6 flex items-center justify-between gap-3">
-          <Link
-            to="/login"
-            aria-label="WatchMoni sign in"
-            className="rounded-xl transition-opacity hover:opacity-80"
-          >
-            <Brand greeting />
-          </Link>
-          <ThemeToggle className="static lg:hidden" />
-        </header>
+        <Link
+          to="/login"
+          aria-label="WatchMoni sign in"
+          className="mb-6 flex justify-center rounded-xl transition-opacity hover:opacity-80"
+        >
+          <Brand greeting />
+        </Link>
         <section className="w-full rounded-2xl border border-border bg-surface p-5 text-center shadow-sm sm:p-8">
           {error ? (
             <>

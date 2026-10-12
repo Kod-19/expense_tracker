@@ -86,7 +86,7 @@ const AppLayout = () => {
         <Sidebar />
       </div>
 
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-4 backdrop-blur sm:px-6 lg:hidden">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-4 pr-16 backdrop-blur sm:px-6 sm:pr-16 lg:hidden">
         <button
           type="button"
           onClick={() => setIsMenuOpen(true)}
@@ -98,17 +98,14 @@ const AppLayout = () => {
           <Menu size={22} />
         </button>
         <Brand className="text-base [&_img]:h-8 [&_img]:w-8 [&_span]:text-base" />
-        <div className="ml-auto flex items-center gap-2">
-          <ThemeToggle className="static" />
-          <NavLink
-            to="/profile"
-            aria-label="Open your profile"
-            title="Profile"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            {initials || 'U'}
-          </NavLink>
-        </div>
+        <NavLink
+          to="/profile"
+          aria-label="Open your profile"
+          title="Profile"
+          className="ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          {initials || 'U'}
+        </NavLink>
       </header>
 
       <main className="min-w-0 px-4 py-5 pb-24 sm:px-6 sm:py-6 sm:pb-24 lg:flex-1 lg:overflow-y-auto lg:p-8">
@@ -171,7 +168,7 @@ const App = () => {
 
   return (
     <>
-      {location.pathname !== '/' && <ThemeToggle className="fixed right-3 top-3 z-40 hidden lg:flex" />}
+      {location.pathname !== '/' && <ThemeToggle />}
       <Routes>
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/" element={<HomeRoute />} />
