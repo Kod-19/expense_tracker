@@ -93,7 +93,7 @@ const AppLayout = () => {
           aria-expanded={isMenuOpen}
           aria-controls="mobile-navigation-drawer"
           className="flex h-10 w-10 items-center justify-center rounded-xl text-text transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
+        > 
           <Menu size={22} />
         </button>
         <Brand className="text-base [&_img]:h-8 [&_img]:w-8 [&_span]:text-base" />
