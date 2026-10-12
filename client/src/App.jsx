@@ -4,7 +4,6 @@ import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } fr
 import Brand from './components/Brand'
 import MobileNavigation from './components/MobileNavigation'
 import Sidebar from './components/Sidebar'
-import ThemeToggle from './components/ThemeToggle'
 import { useAuth } from './context/AuthContext'
 import Budgets from './pages/Budgets'
 import Categories from './pages/Categories'
@@ -86,7 +85,7 @@ const AppLayout = () => {
         <Sidebar />
       </div>
 
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-4 pr-16 backdrop-blur sm:px-6 sm:pr-16 lg:hidden">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-4 backdrop-blur sm:px-6 lg:hidden">
         <button
           type="button"
           onClick={() => setIsMenuOpen(true)}
@@ -164,11 +163,8 @@ const HomeRoute = () => {
 }
 
 const App = () => {
-  const location = useLocation()
-
   return (
     <>
-      {location.pathname !== '/' && <ThemeToggle />}
       <Routes>
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/" element={<HomeRoute />} />

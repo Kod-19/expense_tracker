@@ -1,7 +1,6 @@
 import { ArrowRight, ArrowUpRight, CircleDollarSign, ClipboardList, PieChart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Brand from '../components/Brand'
-import ThemeToggle from '../components/ThemeToggle'
 import financeWorkspace from '../assets/jakub-zerdzicki-heiYgqp0Tsk-unsplash.jpg'
 import ghanaCedis from '../assets/ghana-cedis.jpg'
 
@@ -28,14 +27,13 @@ const GetStarted = () => (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-8 sm:py-5 lg:px-12">
         <Brand />
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center">
           <Link
             to="/login"
             className="rounded-lg px-3 py-2 text-sm font-bold text-text transition hover:bg-surface hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:px-4"
           >
             Sign in
           </Link>
-          <ThemeToggle className="static" />
         </div>
       </div>
     </header>

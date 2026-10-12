@@ -3,12 +3,10 @@ import { Check, SlidersHorizontal } from 'lucide-react'
 import Button from '../components/Button'
 import Card from '../components/Card'
 import { useToast } from '../components/ToastProvider'
-import { useTheme } from '../context/ThemeContext'
 import { DEFAULT_PREFERENCES, getPreferences, savePreferences } from '../utils/preferences'
 
 const Settings = () => {
   const notify = useToast()
-  const { setTheme } = useTheme()
   const [preferences, setPreferences] = useState(getPreferences)
 
   const handleChange = (event) => {
@@ -19,8 +17,7 @@ const Settings = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
     try {
-      const savedPreferences = savePreferences(preferences)
-      setTheme(savedPreferences.theme)
+      savePreferences(preferences)
       notify('Settings saved.')
     } catch {
       notify('Settings could not be saved on this device.', 'error')
@@ -31,7 +28,6 @@ const Settings = () => {
     try {
       const savedPreferences = savePreferences(DEFAULT_PREFERENCES)
       setPreferences(savedPreferences)
-      setTheme(savedPreferences.theme)
       notify('Settings reset.')
     } catch {
       notify('Settings could not be saved on this device.', 'error')
@@ -72,24 +68,6 @@ const Settings = () => {
               <option value="MM/DD/YYYY">Month / day / year (MM/DD/YYYY)</option>
               <option value="YYYY-MM-DD">Year / month / day (YYYY-MM-DD)</option>
             </select>
-          </div>
-
-          <div>
-            <label htmlFor="theme" className="mb-2 block text-sm font-semibold text-text">
-              Appearance
-            </label>
-            <select
-              id="theme"
-              name="theme"
-              value={preferences.theme}
-              onChange={handleChange}
-              className="h-12 w-full rounded-lg border border-border bg-white px-3 text-text outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 sm:max-w-sm"
-            >
-              <option value="system">Use device theme</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
-            <p className="mt-2 text-sm text-muted">Device theme updates automatically when your system appearance changes.</p>
           </div>
 
           <fieldset>
