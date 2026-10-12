@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import Brand from '../components/Brand'
 import GoogleAuthButton from '../components/GoogleAuthButton'
+import ThemeToggle from '../components/ThemeToggle'
 import { useAuth } from '../context/AuthContext'
 
 const Register = () => {
@@ -60,13 +61,16 @@ const Register = () => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-6 sm:py-8">
       <div className="w-full max-w-md">
-        <Link
-          to="/login"
-          aria-label="WatchMoni sign in"
-          className="mb-6 flex justify-center rounded-xl transition-opacity hover:opacity-80 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-        >
-          <Brand greeting />
-        </Link>
+        <header className="mb-6 flex items-center justify-between gap-3">
+          <Link
+            to="/login"
+            aria-label="WatchMoni sign in"
+            className="rounded-xl transition-opacity hover:opacity-80 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          >
+            <Brand greeting />
+          </Link>
+          <ThemeToggle className="static lg:hidden" />
+        </header>
         <form
           onSubmit={handleSubmit}
           autoComplete="on"
