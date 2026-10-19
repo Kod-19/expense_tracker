@@ -28,9 +28,7 @@ This app is built to help a person:
 
 ### Database and auth
 
-- PostgreSQL
-- Supabase Auth
-- Supabase client
+- Supabase
 
 ## Project structure
 
@@ -119,7 +117,7 @@ cd server
 npm run dev
 ```
 
-Apply all transaction and budget table migrations to the configured PostgreSQL/Supabase database:
+Apply all transaction and budget table migrations to the configured Supabase database:
 
 ```bash
 cd server
