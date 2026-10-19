@@ -216,7 +216,7 @@ Use production database credentials only in the backend project's environment se
 - `PUT /api/budgets/:id` — updates a budget
 - `DELETE /api/budgets/:id` — deletes a budget
 
-Before using these endpoints, run `npm run db:setup` from `server/` to apply the SQL migrations in `server/migrations/` to the configured PostgreSQL/Supabase database. The command is safe to rerun.
+Before using these endpoints, run `npm run db:setup` from `server/` to apply the SQL migrations in `server/migrations/` to the configured Supabase database. The command is safe to rerun.
 
 ## Example user flow
 
