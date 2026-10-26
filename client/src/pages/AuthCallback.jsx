@@ -4,6 +4,17 @@ import Brand from '../components/Brand'
 import { useAuth } from '../context/AuthContext'
 import { getSupabaseClient } from '../lib/supabase'
 
+// Module-level lock to prevent double-execution in React 18 StrictMode or concurrent re-renders
+const processedCodes = new Set()
+
+const formatOAuthError = (rawMessage) => {
+  if (!rawMessage) return 'Could not finish Google sign-in. Please try again.'
+  if (rawMessage.includes('PKCE code verifier not found in storage')) {
+    return 'The sign-in code verifier was not found in storage. This can happen if the sign-in was refreshed, expired, or opened across different browser domains (e.g. localhost vs 127.0.0.1). Please try signing in again.'
+  }
+  return rawMessage
+}
+
 const AuthCallback = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -12,11 +23,25 @@ const AuthCallback = () => {
   const startedRef = useRef(false)
 
   useEffect(() => {
-    if (startedRef.current) {
+    // If already authenticated, redirect straight to dashboard
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true })
       return
     }
 
+    const code = searchParams.get('code')
+    if (code && processedCodes.has(code)) {
+      return
+    }
+
+    if (startedRef.current) {
+      return
+    }
     startedRef.current = true
+
+    if (code) {
+      processedCodes.add(code)
+    }
 
     const completeSignIn = async () => {
       const hashParams = new URLSearchParams(window.location.hash.slice(1))
@@ -29,18 +54,38 @@ const AuthCallback = () => {
         throw new Error(providerError)
       }
 
-      const code = searchParams.get('code')
       const supabase = getSupabaseClient()
+
+      // 1. Check if a valid session is already active in Supabase
+      const { data: existingSessionData } = await supabase.auth.getSession().catch(() => ({ data: {} }))
+      if (existingSessionData?.session?.user) {
+        window.history.replaceState(null, '', window.location.pathname)
+        await completeOAuthLogin(existingSessionData.session, existingSessionData.session.user)
+        navigate('/dashboard', { replace: true })
+        return
+      }
+
       let session
       let user
 
       if (code) {
-        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-        if (exchangeError) {
-          throw exchangeError
+        try {
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+          if (exchangeError) {
+            throw exchangeError
+          }
+          session = data.session
+          user = data.user
+        } catch (exchangeError) {
+          // If code was already exchanged in a parallel mount or execution, check getSession again
+          const { data: fallbackData } = await supabase.auth.getSession().catch(() => ({ data: {} }))
+          if (fallbackData?.session?.user) {
+            session = fallbackData.session
+            user = fallbackData.session.user
+          } else {
+            throw exchangeError
+          }
         }
-        session = data.session
-        user = data.user
       } else {
         const accessToken = hashParams.get('access_token')
         const refreshToken = hashParams.get('refresh_token')
@@ -66,15 +111,18 @@ const AuthCallback = () => {
         throw new Error('Google sign-in completed without an active session. Please try again.')
       }
 
-      window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}`)
+      // Clean the query parameters from the URL so code cannot be re-executed on refresh
+      window.history.replaceState(null, '', window.location.pathname)
       await completeOAuthLogin(session, user)
       navigate('/dashboard', { replace: true })
     }
 
     completeSignIn().catch((callbackError) => {
-      setError(callbackError.message || 'Could not finish Google sign-in. Please try again.')
+      // Strip ?code=... from the URL bar on failure so refreshing doesn't loop
+      window.history.replaceState(null, '', window.location.pathname)
+      setError(formatOAuthError(callbackError.message))
     })
-  }, [completeOAuthLogin, navigate, searchParams])
+  }, [completeOAuthLogin, isAuthenticated, navigate, searchParams])
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-6 sm:py-8">
@@ -97,12 +145,15 @@ const AuthCallback = () => {
                 <button
                   type="button"
                   onClick={() => navigate('/dashboard', { replace: true })}
-                  className="mt-6 h-12 w-full rounded-lg bg-primary px-4 text-sm font-bold text-white"
+                  className="mt-6 h-12 w-full rounded-lg bg-primary px-4 text-sm font-bold text-white transition hover:bg-primary/90"
                 >
                   Continue to WatchMoni
                 </button>
               ) : (
-                <Link to="/login" className="mt-6 inline-block font-bold text-primary">
+                <Link
+                  to="/login"
+                  className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-bold text-white transition hover:bg-primary/90"
+                >
                   Back to sign in
                 </Link>
               )}
