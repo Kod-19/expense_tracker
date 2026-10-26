@@ -357,7 +357,7 @@ const Dashboard = () => {
                 }
               >
                 <div className="space-y-3">
-                  {sortedTransactions.slice(0, 5).map((transaction) => (
+                  {sortedTransactions.slice(0, 3).map((transaction) => (
                     <div
                       key={transaction.id}
                       className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border bg-slate-50 px-3 py-3 sm:px-4"

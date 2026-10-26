@@ -81,7 +81,7 @@ const AppLayout = () => {
 
   return (
     <div className="min-h-screen bg-background lg:flex lg:h-screen lg:overflow-hidden">
-      <div className="hidden lg:flex">
+      <div className="hidden lg:flex shrink-0">
         <Sidebar />
       </div>
 
