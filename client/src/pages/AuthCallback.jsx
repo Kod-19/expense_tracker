@@ -4,13 +4,12 @@ import Brand from '../components/Brand'
 import { useAuth } from '../context/AuthContext'
 import { getSupabaseClient } from '../lib/supabase'
 
-// Module-level lock to prevent double-execution in React 18 StrictMode or concurrent re-renders
 const processedCodes = new Set()
 
 const formatOAuthError = (rawMessage) => {
   if (!rawMessage) return 'Could not finish Google sign-in. Please try again.'
   if (rawMessage.includes('PKCE code verifier not found in storage')) {
-    return 'The sign-in code verifier was not found in storage. This can happen if the sign-in was refreshed, expired, or opened across different browser domains (e.g. localhost vs 127.0.0.1). Please try signing in again.'
+    return 'The sign-in code verifier was not found. This can happen if the sign-in session expired, the browser window was refreshed, or sign-in was started in a different browser. Please try signing in again.'
   }
   return rawMessage
 }
@@ -18,17 +17,11 @@ const formatOAuthError = (rawMessage) => {
 const AuthCallback = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { completeOAuthLogin, isAuthenticated } = useAuth()
+  const { completeOAuthLogin } = useAuth()
   const [error, setError] = useState('')
   const startedRef = useRef(false)
 
   useEffect(() => {
-    // If already authenticated, redirect straight to dashboard
-    if (isAuthenticated) {
-      navigate('/dashboard', { replace: true })
-      return
-    }
-
     const code = searchParams.get('code')
     if (code && processedCodes.has(code)) {
       return
@@ -55,74 +48,62 @@ const AuthCallback = () => {
       }
 
       const supabase = getSupabaseClient()
-
-      // 1. Check if a valid session is already active in Supabase
-      const { data: existingSessionData } = await supabase.auth.getSession().catch(() => ({ data: {} }))
-      if (existingSessionData?.session?.user) {
-        window.history.replaceState(null, '', window.location.pathname)
-        await completeOAuthLogin(existingSessionData.session, existingSessionData.session.user)
-        navigate('/dashboard', { replace: true })
-        return
-      }
-
       let session
       let user
 
       if (code) {
-        try {
-          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-          if (exchangeError) {
-            throw exchangeError
-          }
-          session = data.session
-          user = data.user
-        } catch (exchangeError) {
-          // If code was already exchanged in a parallel mount or execution, check getSession again
-          const { data: fallbackData } = await supabase.auth.getSession().catch(() => ({ data: {} }))
-          if (fallbackData?.session?.user) {
-            session = fallbackData.session
-            user = fallbackData.session.user
-          } else {
-            throw exchangeError
-          }
+        // Exchange fresh authorization code for session
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+        if (exchangeError) {
+          throw exchangeError
         }
+        session = data.session
+        user = data.user
       } else {
         const accessToken = hashParams.get('access_token')
         const refreshToken = hashParams.get('refresh_token')
 
-        if (!accessToken || !refreshToken) {
-          throw new Error(
-            'Supabase returned neither an authorization code nor session tokens. Check the Supabase callback URL and redirect URL configuration, then try again.'
-          )
+        if (accessToken && refreshToken) {
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          })
+          if (sessionError) {
+            throw sessionError
+          }
+          session = data.session
+          user = data.user
+        } else {
+          // If neither code nor hash tokens exist, check if an active unexpired session exists
+          const { data: existingData } = await supabase.auth.getSession().catch(() => ({ data: {} }))
+          const existing = existingData?.session
+          if (existing?.access_token && existing?.user) {
+            const expiresAt = Number(existing.expires_at)
+            if (!Number.isFinite(expiresAt) || expiresAt * 1000 > Date.now()) {
+              session = existing
+              user = existing.user
+            }
+          }
         }
-
-        const { data, error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        })
-        if (sessionError) {
-          throw sessionError
-        }
-        session = data.session
-        user = data.user
       }
 
       if (!session || !user) {
         throw new Error('Google sign-in completed without an active session. Please try again.')
       }
 
-      // Clean the query parameters from the URL so code cannot be re-executed on refresh
+      // Strip query parameters (?code=...) and hash so reload doesn't re-trigger
       window.history.replaceState(null, '', window.location.pathname)
+
+      // Verify with backend profile endpoint and save session
       await completeOAuthLogin(session, user)
       navigate('/dashboard', { replace: true })
     }
 
     completeSignIn().catch((callbackError) => {
-      // Strip ?code=... from the URL bar on failure so refreshing doesn't loop
       window.history.replaceState(null, '', window.location.pathname)
       setError(formatOAuthError(callbackError.message))
     })
-  }, [completeOAuthLogin, isAuthenticated, navigate, searchParams])
+  }, [completeOAuthLogin, navigate, searchParams])
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-6 sm:py-8">
@@ -141,22 +122,12 @@ const AuthCallback = () => {
               <p role="alert" className="mt-4 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm font-medium text-error">
                 {error}
               </p>
-              {isAuthenticated ? (
-                <button
-                  type="button"
-                  onClick={() => navigate('/dashboard', { replace: true })}
-                  className="mt-6 h-12 w-full rounded-lg bg-primary px-4 text-sm font-bold text-white transition hover:bg-primary/90"
-                >
-                  Continue to WatchMoni
-                </button>
-              ) : (
-                <Link
-                  to="/login"
-                  className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-bold text-white transition hover:bg-primary/90"
-                >
-                  Back to sign in
-                </Link>
-              )}
+              <Link
+                to="/login"
+                className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-bold text-white transition hover:bg-primary/90"
+              >
+                Back to sign in
+              </Link>
             </>
           ) : (
             <>

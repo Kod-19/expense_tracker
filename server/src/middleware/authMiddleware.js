@@ -1,4 +1,4 @@
-import supabase from "../config/supabase.js";
+import supabase, { supabaseAdmin } from "../config/supabase.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -12,8 +12,9 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
+    const client = supabaseAdmin || supabase;
 
-    const { data, error } = await supabase.auth.getUser(token);
+    const { data, error } = await client.auth.getUser(token);
 
     if (error || !data.user) {
       return res.status(401).json({

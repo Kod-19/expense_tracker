@@ -290,8 +290,6 @@ export const AuthProvider = ({ children }) => {
       throw new Error('Google sign-in did not return a valid user session.')
     }
 
-    saveAuth({ session, user })
-
     const possibleNames = [
       user.user_metadata?.full_name,
       user.user_metadata?.name,
@@ -320,11 +318,10 @@ export const AuthProvider = ({ children }) => {
       throw new Error(data?.message || data?.error || 'Signed in with Google, but could not create your profile.')
     }
 
-    setAuth((currentAuth) => {
-      const nextAuth = { ...currentAuth, profile: data.profile }
-      authRef.current = nextAuth
-      localStorage.setItem('expense_tracker_auth', JSON.stringify(nextAuth))
-      return nextAuth
+    saveAuth({
+      session,
+      user,
+      profile: data.profile,
     })
   }, [saveAuth])
 
