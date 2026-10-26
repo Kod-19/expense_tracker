@@ -28,7 +28,9 @@ This app is built to help a person:
 
 ### Database and auth
 
-- Supabase
+- PostgreSQL
+- Supabase Auth
+- Supabase client
 
 ## Project structure
 
@@ -117,7 +119,7 @@ cd server
 npm run dev
 ```
 
-Apply all transaction and budget table migrations to the configured Supabase database:
+Apply all transaction and budget table migrations to the configured PostgreSQL/Supabase database:
 
 ```bash
 cd server
@@ -216,7 +218,7 @@ Use production database credentials only in the backend project's environment se
 - `PUT /api/budgets/:id` — updates a budget
 - `DELETE /api/budgets/:id` — deletes a budget
 
-Before using these endpoints, run `npm run db:setup` from `server/` to apply the SQL migrations in `server/migrations/` to the configured Supabase database. The command is safe to rerun.
+Before using these endpoints, run `npm run db:setup` from `server/` to apply the SQL migrations in `server/migrations/` to the configured PostgreSQL/Supabase database. The command is safe to rerun.
 
 ## Example user flow
 
@@ -243,6 +245,101 @@ The app can grow to support:
 - charts and reports
 - editing and deleting records
 - monthly reports and richer financial analytics
+
+## Smart AI Features (Post-MVP Roadmap & Guidelines)
+
+WatchMoni can be evolved into an intelligent, low-friction financial assistant using **100% free and open-source AI models** without any paid subscriptions, proprietary token costs, or ongoing API expenses.
+
+### 1. Recommended Free & Open-Source AI Models
+
+| Category | Recommended Model / Tool | Execution Environment | Best Use Case in WatchMoni | Why It Fits WatchMoni |
+| :--- | :--- | :--- | :--- | :--- |
+| **Free Cloud Multimodal & Structured LLM** | **Google Gemini 2.0 Flash / 1.5 Flash (Free Tier)** | Backend API (Free API Key via Google AI Studio) | Receipt OCR, itemization, conversational financial advice, structured JSON extraction | Very generous free tier (15 requests/min, 1,500/day), native multimodal vision (extracts structured JSON directly from receipt photos/PDFs), high speed, zero credit card requirement. |
+| **Ultra-Fast Free Cloud Inference** | **Groq Cloud (Llama 3.3 70B / Llama 3.2 3B)** | Backend API (Free API Key) | Instant natural language quick-logging, expense classification | Sub-second inference (<300ms latency), completely free developer tier with generous rate limits, OpenAI-compatible API format. |
+| **100% Local / Self-Hosted LLM** | **Ollama (Qwen 2.5 3B / 7B or Llama 3.2 3B)** | Local Machine / Self-Hosted Server | Offline transaction parsing, anomaly detection, privacy-first Q&A | Completely offline, 100% private financial data, zero network dependency. Qwen 2.5 offers industry-leading JSON adherence and numerical accuracy for small models. |
+| **In-Browser / Client-Side AI** | **Transformers.js / WebLLM (`SmolLM2-360M` or `Llama-3.2-1B-Instruct`)** | Browser (WebAssembly / WebGPU) | Client-side categorization, auto-tagging, offline search | Zero server load and zero hosting cost; runs directly inside React on the user's device so financial data never leaves the browser. |
+| **Open-Source Client/Server OCR** | **Tesseract.js** | Client (React) or Server (Node.js) | Raw receipt text extraction | Pure JavaScript open-source OCR; works offline in browser without external API keys or server costs. |
+
+---
+
+### 2. Core AI Capabilities & Feature Designs
+
+#### A. Natural Language Quick-Log ("One-Liner Expense Entry")
+- **Concept**: Instead of filling multiple form inputs (Amount, Category, Date, Type, Description), users type or dictate natural phrases:
+  - *"Spent 42.50 on dinner at Mario's with friends yesterday"*
+  - *"Paid $1200 for apartment rent via bank transfer"*
+  - *"Received 350 freelance bonus"*
+- **Extraction Schema**:
+```json
+{
+  "amount": 42.50,
+  "type": "expense",
+  "category": "Food & Dining",
+  "description": "Dinner at Mario's with friends",
+  "date": "2026-10-24"
+}
+```
+- **UX Flow**: A quick-input bar at the top of the dashboard. When submitted, the UI renders a pre-filled confirmation pill/card so the user can review and approve with one click before database insertion.
+
+#### B. Intelligent Receipt & Invoice Scanner
+- **Concept**: Users upload a photo or document of a paper receipt or digital invoice.
+- **Extraction Target**: Merchant name, date, line items, taxes, tips, and total amount.
+- **Recommended Approaches**:
+  1. **Cloud Free-Tier (Zero Cost)**: Send image directly to Gemini Flash free tier with structured JSON output schema.
+  2. **100% Local / Offline**: Run client-side `Tesseract.js` for OCR text extraction, followed by a regex or small local model parser.
+- **Safety**: Automatically runs duplicate transaction checks (matching date, merchant, and total amount) before confirming.
+
+#### C. Smart Categorization & Adaptive Learning
+- **Concept**: Auto-suggest or assign the most accurate category based on the merchant name and notes.
+- **Adaptive Memory**: When a user manually corrects a category (e.g., changes "Uber" from "Travel" to "Commute"), the preference is saved in PostgreSQL and injected as few-shot context examples to future categorization queries for that user.
+
+#### D. Predictive Budgeting & Anomaly Detection
+- **Burn-Rate Alerts**: Calculates spending pacing mid-month (e.g., *"You've used 75% of your Dining budget in the first 10 days of the month. Projected overspend: $120"*).
+- **Subscription Tracking**: Scans historical transactions to identify recurring charges (e.g., streaming services, gym memberships, software licenses), alerting users of price hikes or forgotten subscriptions.
+- **Anomaly Detection**: Flags transactions that significantly deviate from historical norms for a category or merchant.
+
+#### E. "Ask WatchMoni" Financial Assistant (Conversational Insights)
+- **Concept**: A conversational side-panel where users query their financial data in plain English:
+  - *"How much did I spend on groceries compared to eating out last month?"*
+  - *"What was my biggest single expense this quarter?"*
+  - *"Show me categories where my spending decreased this month."*
+- **Architecture (Text-to-SQL / Summary Aggregation)**:
+  1. The user asks a question.
+  2. The server feeds the database schema (without sensitive credentials) and current date to the model.
+  3. The model outputs a safe, read-only SQL query or structured parameters for existing backend aggregate endpoints.
+  4. The query is strictly scoped to the logged-in user (`WHERE user_id = $1`).
+  5. The LLM summarizes the retrieved data into clear, actionable advice with links or chart views.
+
+---
+
+### 3. Architecture & Privacy Guidelines
+
+1. **Strict Data Privacy**:
+   - Never send personally identifiable information (PII) such as email addresses, account passwords, bank account numbers, or user IDs to external AI models.
+   - Always sanitize input strings before sending them to any cloud API.
+   - For complete data sovereignty, deploy with **Ollama** or **Transformers.js** so data never leaves the user's environment.
+2. **Deterministic Fallbacks**:
+   - Always pair AI with heuristic/regex fallbacks. If an AI service is unreachable or rate-limited, fall back to basic pattern matching (e.g., regex for amounts like `\$\d+(\.\d{2})?`).
+3. **Structured Output Enforcement**:
+   - Enforce JSON-schema outputs (supported natively in Gemini and Ollama) to avoid markdown formatting quirks or malformed responses.
+4. **Human-in-the-Loop Confirmation**:
+   - AI extractions must never be committed silently to PostgreSQL. Always present a pre-filled preview card so the user can verify or adjust details before saving.
+
+---
+
+### 4. Implementation Phasing Strategy
+
+- **Phase 1: Quick-Log & Smart Categorization**
+  - Integrate a free inference provider (Groq free tier with Llama 3.3 70B or Gemini 2.0 Flash free tier).
+  - Add conversational quick-entry input on the dashboard with preview confirmation.
+- **Phase 2: Receipt Scanning**
+  - Add drag-and-drop / mobile camera image upload.
+  - Process receipts using Gemini Flash multimodal free tier or client-side Tesseract.js.
+- **Phase 3: Proactive Budget Insights & Subscription Detection**
+  - Implement heuristic and statistical algorithms in Express to compute burn rates and recurring charges.
+  - Display AI-generated insight banners on the dashboard.
+- **Phase 4: Conversational Financial Querying ("Ask WatchMoni")**
+  - Build a chat interface with read-only SQL/aggregation generation to answer arbitrary financial questions.
 
 ## Documentation
 
