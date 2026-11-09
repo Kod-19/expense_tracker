@@ -16,7 +16,8 @@ import Input from '../components/Input'
 import { useToast } from '../components/ToastProvider'
 import { useAuth } from '../context/AuthContext'
 import { formatDate, getPreferences } from '../utils/preferences'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import AiQuickEntry from '../components/AiQuickEntry'
 
 const FILTERS = ['All', 'Income', 'Expense']
 const EMPTY_FORM = {
@@ -40,6 +41,7 @@ const createEmptyForm = () => ({
 const Transactions = () => {
   const { authorizedFetch } = useAuth()
   const notify = useToast()
+  const location = useLocation()
   const [transactions, setTransactions] = useState([])
   const [categories, setCategories] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -173,6 +175,35 @@ const Transactions = () => {
     [transactions]
   )
   const net = totals.income - totals.expenses
+
+  const handleAiParsedTransaction = (aiData) => {
+    setActionError('')
+    setEditingTransaction(null)
+    setIsFormOpen(true)
+
+    const candidateType = aiData.type === 'income' ? 'income' : 'expense'
+    const matchingCategories = categories.filter((c) => c.type === candidateType)
+    const exactMatch = matchingCategories.find(
+      (c) => c.name.toLowerCase() === String(aiData.category || '').toLowerCase()
+    )
+
+    setForm({
+      name: aiData.name || '',
+      category: exactMatch ? exactMatch.name : (matchingCategories[0]?.name || aiData.category || ''),
+      type: candidateType,
+      amount: String(aiData.amount ?? ''),
+      date: aiData.date ? String(aiData.date).slice(0, 10) : new Date().toISOString().slice(0, 10),
+      method: aiData.method || '',
+      notes: aiData.notes || '',
+    })
+  }
+
+  useEffect(() => {
+    if (location.state?.aiPrefill && categories.length > 0) {
+      handleAiParsedTransaction(location.state.aiPrefill)
+      window.history.replaceState({}, document.title)
+    }
+  }, [location.state, categories])
 
   const openCreateForm = () => {
     setActionError('')
@@ -313,6 +344,8 @@ const Transactions = () => {
         </Button>
       </div>
 
+      <AiQuickEntry onTransactionParsed={handleAiParsedTransaction} />
+
       {actionError && (
         <div role="alert" className="flex items-start justify-between gap-4 rounded-xl border border-error/30 bg-rose-50 px-4 py-3 text-sm font-medium text-error">
           <span>{actionError}</span>
@@ -325,21 +358,39 @@ const Transactions = () => {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-4">
           <p className="text-sm font-medium text-muted">Income</p>
-          <p className="mt-3 break-words text-2xl font-bold text-emerald-600 sm:text-3xl">
-            {formatCurrency(totals.income)}
-          </p>
+          <div className="mt-3 flex min-h-[36px] items-center">
+            {isLoading ? (
+              <LoaderCircle size={24} className="animate-spin text-primary" />
+            ) : (
+              <p className="break-words text-2xl font-bold text-emerald-600 sm:text-3xl">
+                {formatCurrency(totals.income)}
+              </p>
+            )}
+          </div>
         </Card>
         <Card className="p-4">
           <p className="text-sm font-medium text-muted">Expenses</p>
-          <p className="mt-3 break-words text-2xl font-bold text-rose-600 sm:text-3xl">
-            {formatCurrency(totals.expenses)}
-          </p>
+          <div className="mt-3 flex min-h-[36px] items-center">
+            {isLoading ? (
+              <LoaderCircle size={24} className="animate-spin text-primary" />
+            ) : (
+              <p className="break-words text-2xl font-bold text-rose-600 sm:text-3xl">
+                {formatCurrency(totals.expenses)}
+              </p>
+            )}
+          </div>
         </Card>
         <Card className="p-4">
           <p className="text-sm font-medium text-muted">Balance</p>
-          <p className={`mt-3 break-words text-2xl font-bold sm:text-3xl ${net >= 0 ? 'text-primary' : 'text-error'}`}>
-            {formatCurrency(net)}
-          </p>
+          <div className="mt-3 flex min-h-[36px] items-center">
+            {isLoading ? (
+              <LoaderCircle size={24} className="animate-spin text-primary" />
+            ) : (
+              <p className={`break-words text-2xl font-bold sm:text-3xl ${net >= 0 ? 'text-primary' : 'text-error'}`}>
+                {formatCurrency(net)}
+              </p>
+            )}
+          </div>
         </Card>
       </div>
 

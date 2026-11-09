@@ -10,7 +10,9 @@ import {
   Tooltip,
 } from 'chart.js'
 import { Doughnut, Line } from 'react-chartjs-2'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import AiQuickEntry from '../components/AiQuickEntry'
+import AiFinancialInsights from '../components/AiFinancialInsights'
 import { ArrowDownLeft, ArrowUpRight, LoaderCircle } from 'lucide-react'
 import Card from '../components/Card'
 import Button from '../components/Button'
@@ -47,6 +49,11 @@ const createRecentMonthKeys = () => {
 
 const Dashboard = () => {
   const { authorizedFetch, fetchProfile, profile, user } = useAuth()
+  const navigate = useNavigate()
+
+  const handleAiTransactionParsed = (parsedTransaction) => {
+    navigate('/transactions', { state: { aiPrefill: parsedTransaction } })
+  }
   const [transactions, setTransactions] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -244,6 +251,10 @@ const Dashboard = () => {
         <p className="pt-2 text-base font-medium text-muted">Here’s a summary of your money.</p>
       </div>
 
+      <AiQuickEntry onTransactionParsed={handleAiTransactionParsed} />
+
+      <AiFinancialInsights />
+
       {loadError && (
         <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-error/30 bg-rose-50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -256,33 +267,45 @@ const Dashboard = () => {
         </div>
       )}
 
-      {isLoading ? (
-        <div className="flex min-h-64 flex-col items-center justify-center gap-3 text-muted" role="status">
-          <LoaderCircle size={30} className="animate-spin text-primary" />
-          <span className="text-sm font-medium">Loading your dashboard...</span>
-        </div>
-      ) : !loadError && (
-        <>
-          <div className="grid gap-4 md:grid-cols-3">
-            {summary.map((item) => (
-              <Card key={item.label} className="p-5">
-                <p className="text-sm font-medium text-muted">{item.label}</p>
-                <p className={`mt-3 break-words text-2xl font-bold sm:text-3xl ${item.tone}`}>
-                  {formatCurrency(item.value)}
-                </p>
-                <p className="mt-2 text-sm font-medium text-muted">
-                  {item.description.text || (
+      {!loadError && (
+        <div className="grid gap-4 md:grid-cols-3">
+          {summary.map((item) => (
+            <Card key={item.label} className="p-5">
+              <p className="text-sm font-medium text-muted">{item.label}</p>
+              <div className="mt-3 flex min-h-[36px] items-center">
+                {isLoading ? (
+                  <LoaderCircle size={24} className="animate-spin text-primary" />
+                ) : (
+                  <p className={`break-words text-2xl font-bold sm:text-3xl ${item.tone}`}>
+                    {formatCurrency(item.value)}
+                  </p>
+                )}
+              </div>
+              <div className="mt-2 min-h-[20px] text-sm font-medium text-muted">
+                {isLoading ? (
+                  <span className="inline-block h-3.5 w-28 animate-pulse rounded bg-slate-200" />
+                ) : (
+                  item.description.text || (
                     <>
                       {item.description.before}
                       <span className={`font-bold ${item.percentageTone}`}>{item.description.percentage}</span>
                       {item.description.after}
                     </>
-                  )}
-                </p>
-              </Card>
-            ))}
-          </div>
+                  )
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
+      {isLoading ? (
+        <div className="flex min-h-64 flex-col items-center justify-center gap-3 text-muted" role="status">
+          <LoaderCircle size={30} className="animate-spin text-primary" />
+          <span className="text-sm font-medium">Loading charts and recent transactions...</span>
+        </div>
+      ) : !loadError && (
+        <>
           {transactions.length === 0 ? (
             <Card className="flex min-h-64 flex-col items-center justify-center px-6 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">

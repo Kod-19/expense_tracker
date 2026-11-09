@@ -1,4 +1,17 @@
-import { ArrowRight, ArrowUpRight, CircleDollarSign, ClipboardList, PieChart } from 'lucide-react'
+import React from 'react'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Camera,
+  CheckCircle2,
+  CircleDollarSign,
+  Lightbulb,
+  Mic,
+  PieChart,
+  Receipt,
+  Sparkles,
+  Zap,
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Brand from '../components/Brand'
 import financeWorkspace from '../assets/jakub-zerdzicki-heiYgqp0Tsk-unsplash.jpg'
@@ -6,19 +19,53 @@ import ghanaCedis from '../assets/ghana-cedis.jpg'
 
 const steps = [
   {
-    icon: ClipboardList,
-    title: 'Record your money',
-    description: 'Add the money you receive and the things you spend it on.',
+    icon: Sparkles,
+    title: 'Log effortlessly with AI',
+    description:
+      'Type casually like "Spent 45 cedis at KFC yesterday", speak with voice, or snap a receipt photo. Gemini extracts amounts, dates, and categories in seconds.',
   },
   {
     icon: CircleDollarSign,
-    title: 'Plan your spending',
-    description: 'Organize expenses into categories and set budgets that suit you.',
+    title: 'Auto-categorize & budget',
+    description:
+      'WatchMoni organizes transactions into clean categories and tracks your monthly spending limits so you never overspend.',
+  },
+  {
+    icon: Lightbulb,
+    title: 'Actionable AI financial insights',
+    description:
+      'Receive personalized health scores, savings recommendations, and smart tips tailored to your actual spending habits.',
+  },
+]
+
+const aiFeatures = [
+  {
+    icon: Zap,
+    title: 'Natural Language Quick-Log',
+    badge: 'Gemini 3.8 Flash',
+    description:
+      'No more filling tedious forms. Type everyday sentences with currencies (GHS, $, €) or relative dates like "yesterday" or "last Friday".',
+  },
+  {
+    icon: Camera,
+    title: 'Multimodal Receipt & Invoice OCR',
+    badge: 'Gemini Vision',
+    description:
+      'Upload paper receipts or digital PDFs. The vision model reads merchant names, grand totals, and line items with high precision.',
+  },
+  {
+    icon: Mic,
+    title: 'Voice-to-Expense Logging',
+    badge: 'Hands-Free',
+    description:
+      'On the go? Tap the microphone and speak your expenses naturally. WatchMoni transcribes and records them immediately.',
   },
   {
     icon: PieChart,
-    title: 'See how you are doing',
-    description: 'Use your dashboard to understand your spending at a glance.',
+    title: 'Smart Spending Advisor',
+    badge: 'AI Insights',
+    description:
+      'AI monitors your monthly cash flow, detects category overruns, and computes your savings rate with concrete advice.',
   },
 ]
 
@@ -38,18 +85,22 @@ const GetStarted = () => (
       </div>
     </header>
 
-    <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-8 sm:px-8 sm:pb-20 lg:grid-cols-[1fr_0.95fr] lg:gap-16 lg:px-12 lg:pb-24 lg:pt-12">
+    {/* Hero Section */}
+    <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 sm:px-8 sm:pb-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:px-12 lg:pb-24 lg:pt-14">
       <div className="max-w-xl">
-        <p className="inline-flex items-center gap-2 rounded-full bg-mint/60 px-3 py-1.5 text-sm font-bold text-teal">
-          <span className="h-2 w-2 rounded-full bg-teal" />
-          A clearer view of your money
-        </p>
+        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50/90 px-3.5 py-1.5 text-xs font-bold text-indigo-700 shadow-xs sm:text-sm">
+          <Sparkles size={16} className="text-primary" />
+          <span>Powered by Gemini AI · Smart Logging & Insights</span>
+        </div>
+
         <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight text-text sm:text-5xl lg:text-6xl">
-          Make your money easier to <span className="text-primary">understand.</span>
+          Track your money with the speed of <span className="text-primary">AI.</span>
         </h1>
+
         <p className="mt-5 max-w-lg text-base leading-7 text-muted sm:text-lg sm:leading-8">
-          WatchMoni helps you keep track of what comes in, what goes out, and what you want to save for. No guesswork—just a simple picture of your everyday money.
+          Type naturally like texting a friend, speak hands-free, or snap a photo of any receipt. WatchMoni’s AI extracts amounts, dates, and categories in seconds—plus gives you personalized spending advice.
         </p>
+
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link
             to="/register"
@@ -65,57 +116,160 @@ const GetStarted = () => (
             I already have an account
           </Link>
         </div>
-        <p className="mt-4 text-sm text-muted">Your finances, organized in one easy-to-use place.</p>
+        <p className="mt-4 text-xs font-medium text-muted sm:text-sm">
+          Zero spreadsheet frustration · Free personal finance assistant
+        </p>
       </div>
 
-      <div className="relative mx-auto w-full max-w-xl lg:mr-0">
-        <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-mint/70 blur-3xl" />
-        <div className="absolute -bottom-8 -left-8 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
-        <img
-          src={financeWorkspace}
-          alt="Notebook, calculator, and charts ready for planning finances"
-          className="relative h-[280px] w-full rounded-3xl object-cover shadow-xl sm:h-[380px]"
-        />
-        <div className="absolute -bottom-5 left-4 flex max-w-[calc(100%-2rem)] items-center gap-3 rounded-2xl border border-border bg-surface p-3 shadow-lg sm:bottom-6 sm:left-[-2rem] sm:max-w-xs sm:p-4">
-          <img src={ghanaCedis} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-text">Small steps add up</p>
-            <p className="mt-1 text-xs leading-5 text-muted">A little awareness can make everyday money choices easier.</p>
+      {/* Interactive AI Preview Mockup */}
+      <div className="relative mx-auto w-full max-w-lg lg:mr-0">
+        <div className="absolute -right-8 -top-8 h-44 w-44 rounded-full bg-indigo-200/50 blur-3xl" />
+        <div className="absolute -bottom-8 -left-8 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
+
+        <div className="relative rounded-3xl border border-indigo-100 bg-white/95 p-5 shadow-xl sm:p-6">
+          <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles size={18} className="text-primary" />
+              <span className="text-xs font-bold text-slate-800 sm:text-sm">Smart AI Assistant</span>
+            </div>
+            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+              Live Demo
+            </span>
           </div>
-          <ArrowUpRight className="ml-auto shrink-0 text-teal" size={20} aria-hidden="true" />
+
+          {/* Sample AI Input */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+            <p className="text-xs font-medium text-slate-400">Natural Language Prompt</p>
+            <p className="mt-1 text-sm font-semibold text-slate-800">
+              "Spent 45 cedis on lunch at KFC yesterday"
+            </p>
+          </div>
+
+          {/* Extracted Output Chips */}
+          <div className="mt-4 space-y-2.5">
+            <p className="text-xs font-bold text-slate-500">✨ AI Extracted in 0.8s:</p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="rounded-lg border border-slate-100 bg-slate-50 p-2">
+                <span className="text-slate-400">Title:</span>
+                <p className="font-bold text-slate-800">KFC Lunch</p>
+              </div>
+              <div className="rounded-lg border border-slate-100 bg-slate-50 p-2">
+                <span className="text-slate-400">Amount:</span>
+                <p className="font-bold text-rose-600">-GHS 45.00</p>
+              </div>
+              <div className="rounded-lg border border-slate-100 bg-slate-50 p-2">
+                <span className="text-slate-400">Category:</span>
+                <p className="font-bold text-indigo-700">Food & Dining</p>
+              </div>
+              <div className="rounded-lg border border-slate-100 bg-slate-50 p-2">
+                <span className="text-slate-400">Date:</span>
+                <p className="font-bold text-slate-800">Yesterday (Calculated)</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick receipt scan pill */}
+          <div className="mt-4 flex items-center justify-between rounded-xl bg-gradient-to-r from-indigo-50 to-blue-50 p-3">
+            <div className="flex items-center gap-2">
+              <Camera size={16} className="text-indigo-600" />
+              <span className="text-xs font-semibold text-slate-700">Receipt & Invoice OCR</span>
+            </div>
+            <span className="text-xs font-bold text-indigo-600">Scan & Itemize →</span>
+          </div>
+        </div>
+
+        {/* Floating badge */}
+        <div className="absolute -bottom-6 left-4 flex max-w-[calc(100%-2rem)] items-center gap-3 rounded-2xl border border-border bg-surface p-3 shadow-lg sm:bottom-4 sm:left-[-1.5rem] sm:max-w-xs sm:p-4">
+          <img src={ghanaCedis} alt="Ghana Cedis" className="h-12 w-12 shrink-0 rounded-xl object-cover" />
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-text sm:text-sm">Zero Guesswork</p>
+            <p className="text-xs text-muted">Smart tracking helps you keep more cedis in your pocket.</p>
+          </div>
+          <ArrowUpRight className="ml-auto shrink-0 text-teal" size={18} aria-hidden="true" />
         </div>
       </div>
     </section>
 
-    <section className="border-t border-border bg-surface/70">
-      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
+    {/* AI Capabilities Section */}
+    <section className="border-t border-border bg-slate-50/60 py-16">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="max-w-2xl">
-          <p className="text-sm font-bold uppercase tracking-wider text-teal">How WatchMoni works</p>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-text sm:text-4xl">
-            Three simple steps to get started
+          <p className="text-xs font-bold uppercase tracking-wider text-primary sm:text-sm">
+            AI-Powered Features
+          </p>
+          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-text sm:text-4xl">
+            Everything you need, automated by AI
           </h2>
-          <p className="mt-3 leading-7 text-muted">You do not need to be a finance expert. Start with what you know, and build a clearer picture over time.</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
+            Spend less time entering numbers and more time reaching your financial goals.
+          </p>
         </div>
-        <ol className="mt-9 grid gap-4 md:grid-cols-3">
-          {steps.map(({ icon: Icon, title, description }, index) => (
-            <li key={title} className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-mint/60 text-teal">
-                <Icon size={21} aria-hidden="true" />
+
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {aiFeatures.map(({ icon: Icon, title, badge, description }) => (
+            <div
+              key={title}
+              className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:shadow-md"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-primary">
+                    <Icon size={20} />
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+                    {badge}
+                  </span>
+                </div>
+                <h3 className="mt-4 text-base font-bold text-text">{title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-muted sm:text-sm">{description}</p>
               </div>
-              <p className="mt-5 text-xs font-bold uppercase tracking-wider text-muted">Step {index + 1}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* 3 Simple Steps */}
+    <section className="border-t border-border bg-surface/70 py-16">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+        <div className="max-w-2xl">
+          <p className="text-xs font-bold uppercase tracking-wider text-teal sm:text-sm">
+            How WatchMoni Works
+          </p>
+          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-text sm:text-4xl">
+            Three simple steps to financial clarity
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
+            You don't need to be an accountant. Start with what you spend, and WatchMoni handles the rest.
+          </p>
+        </div>
+
+        <ol className="mt-10 grid gap-5 md:grid-cols-3">
+          {steps.map(({ icon: Icon, title, description }, index) => (
+            <li key={title} className="rounded-2xl border border-border bg-white p-6 shadow-xs">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-mint/60 text-teal">
+                <Icon size={22} aria-hidden="true" />
+              </div>
+              <p className="mt-5 text-xs font-bold uppercase tracking-wider text-muted">
+                Step {index + 1}
+              </p>
               <h3 className="mt-1 text-lg font-bold text-text">{title}</h3>
               <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
             </li>
           ))}
         </ol>
-        <div className="mt-9 flex flex-col items-start justify-between gap-4 rounded-2xl bg-primary px-5 py-6 text-white sm:flex-row sm:items-center sm:px-8">
+
+        {/* CTA Banner */}
+        <div className="mt-12 flex flex-col items-start justify-between gap-5 rounded-2xl bg-primary px-6 py-8 text-white sm:flex-row sm:items-center sm:px-10">
           <div>
-            <h2 className="text-xl font-bold">Ready to get a better view of your money?</h2>
-            <p className="mt-1 text-sm text-white/80">Create your account and take the first step.</p>
+            <h2 className="text-2xl font-bold">Ready to take control with AI?</h2>
+            <p className="mt-1 text-sm text-white/80">
+              Create your account in under a minute and start tracking smarter.
+            </p>
           </div>
           <Link
             to="/register"
-            className="get-started-account-button inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-primary transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="get-started-account-button inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-bold text-primary shadow-sm transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             Create an account
             <ArrowRight size={17} />

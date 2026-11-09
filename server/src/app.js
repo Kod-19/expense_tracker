@@ -8,6 +8,7 @@ import profileRoutes from "./routes/profileRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import budgetRoutes from "./routes/budgetRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 dotenv.config();
 
@@ -53,6 +54,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/budgets", budgetRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.get("/", (req, res) => {
   res.json({
@@ -92,7 +94,7 @@ app.use((req, res) => {
   res.status(404).json({
     success: false,
     message:
-      "Route not found. Available routes: /, /api/health, /api/health/database",
+      "Route not found. Available routes: /, /api/health, /api/health/database, /api/ai",
   });
 });
 
