@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import Brand from '../components/Brand'
 import GoogleAuthButton from '../components/GoogleAuthButton'
+import InAppBrowserBanner from '../components/InAppBrowserBanner'
+import InAppBrowserModal from '../components/InAppBrowserModal'
+import { getInAppBrowserName } from '../utils/inAppBrowser'
 import { useAuth } from '../context/AuthContext'
 
 const Register = () => {
@@ -16,6 +19,8 @@ const Register = () => {
   const [registrationNotice, setRegistrationNotice] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
+  const [showInAppModal, setShowInAppModal] = useState(false)
+  const fullNameInputRef = useRef(null)
 
   const handleGoogleSignIn = async () => {
     setError('')
@@ -24,7 +29,11 @@ const Register = () => {
     try {
       await loginWithGoogle()
     } catch (err) {
-      setError(err.message)
+      if (err.isInAppBrowser) {
+        setShowInAppModal(true)
+      } else {
+        setError(err.message)
+      }
       setIsGoogleSubmitting(false)
     }
   }
@@ -91,6 +100,7 @@ const Register = () => {
         </label>
         <input
           id="fullName"
+          ref={fullNameInputRef}
           name="name"
           type="text"
           value={fullName}
@@ -168,6 +178,12 @@ const Register = () => {
           </Link>
         </p>
         </form>
+        <InAppBrowserModal
+          isOpen={showInAppModal}
+          onClose={() => setShowInAppModal(false)}
+          browserName={getInAppBrowserName() || 'In-App Browser'}
+          onUseEmail={() => fullNameInputRef.current?.focus()}
+        />
       </div>
     </main>
   )

@@ -1,25 +1,12 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { getSupabaseClient } from '../lib/supabase'
+import { getInAppBrowserName, isAndroid, tryOpenInExternalBrowser } from '../utils/inAppBrowser'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000').replace(/\/+$/, '')
 
 const AuthContext = createContext(null)
 
-const IN_APP_BROWSER_PATTERNS = [
-  ['Instagram', /Instagram/i],
-  ['Snapchat', /Snapchat/i],
-  ['LinkedIn', /LinkedInApp/i],
-  ['Facebook', /FBAN|FBAV|FB_IAB/i],
-  ['TikTok', /TikTok|BytedanceWebview|musical_ly/i],
-  ['X', /Twitter|TwitterAndroid/i],
-  ['WeChat', /MicroMessenger/i],
-  ['LINE', /Line\//i],
-  ['Telegram', /Telegram/i],
-  ['an in-app browser', /; wv\)/i],
-]
 
-const getInAppBrowserName = (userAgent) =>
-  IN_APP_BROWSER_PATTERNS.find(([, pattern]) => pattern.test(userAgent))?.[0]
 
 const getStoredAuth = () => {
   const storedAuth = localStorage.getItem('expense_tracker_auth')
@@ -256,13 +243,9 @@ export const AuthProvider = ({ children }) => {
     })
 
   const loginWithGoogle = useCallback(async () => {
-    const inAppBrowserName = getInAppBrowserName(window.navigator.userAgent)
-    if (inAppBrowserName) {
-      throw new Error(
-        `Google sign-in may not work in ${inAppBrowserName}'s in-app browser. Open this page in Safari or Chrome using the browser menu, or copy this page's address and open it there.`
-      )
-    }
+    const inAppBrowserName = getInAppBrowserName()
 
+    // 1. Generate Google OAuth URL from Supabase
     const { data, error } = await getSupabaseClient().auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -278,10 +261,30 @@ export const AuthProvider = ({ children }) => {
       throw error
     }
 
-    if (!data.url) {
+    if (!data?.url) {
       throw new Error('Supabase did not provide a Google sign-in URL.')
     }
 
+    // 2. On Android in-app browsers, attempt intent breakout to external browser
+    if (inAppBrowserName && isAndroid()) {
+      const breakoutSuccess = tryOpenInExternalBrowser(data.url)
+      if (breakoutSuccess) {
+        return
+      }
+    }
+
+    // 3. On iOS / other in-app browsers, throw structured error for UI modal
+    if (inAppBrowserName) {
+      const iabError = new Error(
+        `Google sign-in is blocked inside ${inAppBrowserName} for security. Please open this page in Safari or Chrome, or sign in with your email.`
+      )
+      iabError.isInAppBrowser = true
+      iabError.browserName = inAppBrowserName
+      iabError.oauthUrl = data.url
+      throw iabError
+    }
+
+    // 4. Standard browser navigation
     window.location.assign(data.url)
   }, [])
 

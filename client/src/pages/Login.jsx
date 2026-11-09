@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import Brand from '../components/Brand'
 import GoogleAuthButton from '../components/GoogleAuthButton'
+import InAppBrowserBanner from '../components/InAppBrowserBanner'
+import InAppBrowserModal from '../components/InAppBrowserModal'
+import { getInAppBrowserName } from '../utils/inAppBrowser'
 import { useAuth } from '../context/AuthContext'
 
 const Login = () => {
@@ -14,6 +17,8 @@ const Login = () => {
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
+  const [showInAppModal, setShowInAppModal] = useState(false)
+  const emailInputRef = useRef(null)
 
   const handleGoogleSignIn = async () => {
     setError('')
@@ -22,7 +27,11 @@ const Login = () => {
     try {
       await loginWithGoogle()
     } catch (err) {
-      setError(err.message)
+      if (err.isInAppBrowser) {
+        setShowInAppModal(true)
+      } else {
+        setError(err.message)
+      }
       setIsGoogleSubmitting(false)
     }
   }
@@ -57,6 +66,7 @@ const Login = () => {
           autoComplete="on"
           className="w-full rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8"
         >
+        <InAppBrowserBanner />
         <h1 className="text-2xl font-bold text-text sm:text-3xl">Welcome back</h1>
         <p className="mt-2 text-sm font-medium text-muted">Sign in to manage your income and expenses.</p>
 
@@ -71,6 +81,7 @@ const Login = () => {
         </label>
         <input
           id="email"
+          ref={emailInputRef}
           name="username"
           type="email"
           value={email}
@@ -132,6 +143,12 @@ const Login = () => {
           </Link>
         </p>
         </form>
+        <InAppBrowserModal
+          isOpen={showInAppModal}
+          onClose={() => setShowInAppModal(false)}
+          browserName={getInAppBrowserName() || 'In-App Browser'}
+          onUseEmail={() => emailInputRef.current?.focus()}
+        />
       </div>
     </main>
   )
