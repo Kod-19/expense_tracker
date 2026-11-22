@@ -161,7 +161,7 @@ const AiQuickEntry = ({ onTransactionParsed, className = '' }) => {
   return (
     <div
       className={[
-        'rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50/70 via-white to-blue-50/60 p-4 shadow-sm transition hover:shadow-md sm:p-5',
+        'rounded-2xl shadow-sm transition hover:shadow-md sm:p-5',
         className,
       ].join(' ')}
     >
