@@ -194,7 +194,7 @@ const AiQuickEntry = ({ onTransactionParsed, className = '' }) => {
             placeholder={
               isListening
                 ? 'Listening... say something like "Spent 45 cedis on lunch yesterday"'
-                : 'e.g., "Spent 45 cedis on lunch at KFC yesterday" or "Received 500 bonus"'
+                : 'e.g., "Spent 45 cedis on lunch at KFC yesterday"'
             }
             className={`h-11 w-full rounded-xl border bg-white px-3.5 pr-10 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:ring-2 disabled:opacity-60 ${
               isListening
