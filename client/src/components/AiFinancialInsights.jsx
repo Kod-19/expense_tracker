@@ -134,7 +134,7 @@ const AiFinancialInsights = ({ className = '' }) => {
         <div className="pt-3.5">
           {insights?.headline && (
             <p className="mb-3 text-xs font-semibold text-slate-700 sm:text-sm">
-              💡 {insights.headline}
+              {insights.headline}
             </p>
           )}
 
